@@ -1,2 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Authentication\" />
+    <Folder Include="Auhtorization\" />
+    <Folder Include="Bookings\" />
+    <Folder Include="Database\" />
+    <Folder Include="Schedule\" />
+    <Folder Include="Specialists\" />
+    <Folder Include="Users\" />
+  </ItemGroup>
 </Project>
