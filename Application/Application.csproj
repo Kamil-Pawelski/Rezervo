@@ -4,11 +4,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Abstractions\Messaging\" />
-    <Folder Include="Abstractions\Data\" />
     <Folder Include="Abstractions\Authentication\" />
     <Folder Include="Bookings\" />
     <Folder Include="Specialists\" />
     <Folder Include="Schedule\" />
     <Folder Include="Users\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 </Project>
