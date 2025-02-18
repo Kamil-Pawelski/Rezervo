@@ -7,7 +7,7 @@
     <Folder Include="Abstractions\Authentication\" />
     <Folder Include="Bookings\" />
     <Folder Include="Specialists\" />
-    <Folder Include="Schedule\" />
+    <Folder Include="Schedules\" />
     <Folder Include="Users\" />
   </ItemGroup>
   <ItemGroup>

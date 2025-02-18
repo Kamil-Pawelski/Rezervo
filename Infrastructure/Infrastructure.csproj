@@ -9,7 +9,7 @@
     <Folder Include="Authentication\" />
     <Folder Include="Auhtorization\" />
     <Folder Include="Bookings\" />
-    <Folder Include="Schedule\" />
+    <Folder Include="Schedules\" />
     <Folder Include="Specialists\" />
     <Folder Include="Users\" />
   </ItemGroup>

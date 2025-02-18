@@ -1,4 +1,4 @@
-﻿namespace Domain.Schedule;
+﻿namespace Domain.Schedules;
 public enum Status
 {
     Available = 1,

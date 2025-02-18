@@ -1,5 +1,5 @@
 ﻿using Domain.Bookings;
-using Domain.Schedule;
+using Domain.Schedules;
 using Domain.Specialists;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
