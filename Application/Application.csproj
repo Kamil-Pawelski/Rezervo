@@ -3,12 +3,10 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Abstractions\Messaging\" />
     <Folder Include="Abstractions\Authentication\" />
     <Folder Include="Bookings\" />
     <Folder Include="Specialists\" />
     <Folder Include="Schedules\" />
-    <Folder Include="Users\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />
