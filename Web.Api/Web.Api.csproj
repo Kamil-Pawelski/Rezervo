@@ -21,7 +21,6 @@
     <Folder Include="Endpoints\Bookings\" />
     <Folder Include="Endpoints\Schedule\" />
     <Folder Include="Endpoints\Specialists\" />
-    <Folder Include="Endpoints\Users\" />
   </ItemGroup>
 
 </Project>

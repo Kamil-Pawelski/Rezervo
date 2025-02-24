@@ -6,8 +6,7 @@
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Authentication\" />
-    <Folder Include="Auhtorization\" />
+    <Folder Include="Authorization\" />
     <Folder Include="Bookings\" />
     <Folder Include="Schedules\" />
     <Folder Include="Specialists\" />

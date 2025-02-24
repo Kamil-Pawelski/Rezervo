@@ -3,7 +3,6 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Abstractions\Authentication\" />
     <Folder Include="Bookings\" />
     <Folder Include="Specialists\" />
     <Folder Include="Schedules\" />
