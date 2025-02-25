@@ -12,6 +12,7 @@
 
 	<PropertyGroup>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<UserSecretsId>dee2e7d8-1189-4192-996f-cce460755450</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>

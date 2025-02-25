@@ -1,20 +1,18 @@
 ﻿using Application.Users;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Shouldly;
 
 namespace Tests.Users;
 
-public class UserEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("Factory")]
+public class UserEndpointTests 
 {
-    private readonly WebApplicationFactory<Program> _factory;
-
-    public UserEndpointTests(WebApplicationFactory<Program> factory) => _factory = factory;
+    private readonly HttpClient _client;
+    public UserEndpointTests(CustomWebApplicationFactory<Program> factory) => _client = factory.CreateClient();
 
     [Fact]
-    public async Task RegisterEndpoint_ShouldReturnOk_WhenValidData()
+    public async Task RegisterEndpoint_ShouldReturnOk()
     {
-        HttpClient client = _factory.CreateClient();
         var command = new RegisterUserCommand(
             "EndpointFirstTest@example.com",
             "EndpointFirstTest",
@@ -23,9 +21,44 @@ public class UserEndpointTests : IClassFixture<WebApplicationFactory<Program>>
             "Password123!"
         );
 
-        HttpResponseMessage response = await client.PostAsJsonAsync("users/register", command);
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
 
         response.IsSuccessStatusCode.ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task RegisterEndpoint_ShouldReturnConflict_EmailAlreadyExist()
+    {
+        var command = new RegisterUserCommand(
+            "EndpointTest@example.com",
+            "EndpointSecondTest",
+            "Endpoint",
+            "Second",
+            "Password123!"
+        );
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
+        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+        response.IsSuccessStatusCode.ShouldBeFalse();
+        Assert.Equal("EmailTaken", result?.Code);
+    }
+
+    [Fact]
+    public async Task RegisterEndpoint_ShouldReturnConflict_UsernameAlreadyExist()
+    {
+        var command = new RegisterUserCommand(
+            "EndpointThirdTest@example.com",
+            "EndpointTest",
+            "Endpoint",
+            "Third",
+            "Password123!"
+        );
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
+        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+        response.IsSuccessStatusCode.ShouldBeFalse();
+        Assert.Equal("UsernameTaken", result?.Code);
+    }
 }
