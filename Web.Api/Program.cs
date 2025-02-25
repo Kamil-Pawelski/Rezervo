@@ -1,4 +1,7 @@
+using System.Reflection;
+using Application;
 using Infrastructure;
+using Web.Api.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +12,11 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services
+    .AddApplication()
     .AddInfrastructure(builder.Configuration);
+
+builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+
 
 WebApplication app = builder.Build();
 
@@ -24,5 +31,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapEndpoints();
 
 await app.RunAsync();
+
+public partial class Program { }

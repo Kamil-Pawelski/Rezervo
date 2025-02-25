@@ -118,4 +118,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 new Role { Id = 3, Name = RolesConstants.Administrator }
             );*/
     }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await base.SaveChangesAsync(cancellationToken);
 }

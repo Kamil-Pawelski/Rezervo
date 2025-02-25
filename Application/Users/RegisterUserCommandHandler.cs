@@ -1,15 +1,40 @@
-﻿using Application.Abstractions.Data;
+﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Domain.Common;
+using Domain.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users;
 
-public sealed class RegisterUserCommandHandler(IApplicationDbContext context)
-    : ICommandHandler<RegisterUserCommand, Guid>
+public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher)
+    : ICommandHandler<RegisterUserCommand>
 {
-    public Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        int x = 2;
-        return null;
-    }
+        if (await context.Users.AnyAsync(user => user.Email == command.Email, cancellationToken))
+        {
+            return Result.Failure(new Error("EmailTaken", "This email is already taken", ErrorType.Conflict));
+        }
+
+        if (await context.Users.AnyAsync(user => user.Username == command.Username, cancellationToken))
+        {
+            return Result.Failure(new Error("UsernameTaken", "This username is already taken", ErrorType.Conflict));
+        }
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = command.Email,
+            Username = command.Username,
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            PasswordHash = passwordHasher.Hash(command.Password)
+        };
+
+        context.Users.Add(user);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+   }
 }
