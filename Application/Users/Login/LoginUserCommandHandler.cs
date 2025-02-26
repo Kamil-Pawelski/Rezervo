@@ -16,7 +16,7 @@ public sealed class LoginUserCommandHandler(
     public async Task<Result<string>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
         User? user =
-            await context.Users.SingleOrDefaultAsync(u => u.Email == command.Login || u.Username == command.Login,
+            await context.Users.FirstOrDefaultAsync(u => u.Email == command.Login || u.Username == command.Login,
                 cancellationToken);
 
         if (user is null)
@@ -25,7 +25,7 @@ public sealed class LoginUserCommandHandler(
                 ErrorType.NotFound));
         }
 
-        bool isPasswordValid = passwordHasher.Verify(user.PasswordHash, command.Password);
+        bool isPasswordValid = passwordHasher.Verify(command.Password, user.PasswordHash);
 
         if (!isPasswordValid)
         {

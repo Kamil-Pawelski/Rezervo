@@ -1,8 +1,10 @@
 ﻿using Application.Users;
 using System.Net.Http.Json;
+using Application.Users.Login;
 using Application.Users.Register;
 using Shouldly;
 using Web.Api;
+using System.Net;
 
 namespace Tests.Users;
 
@@ -19,7 +21,8 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "EndpointFirstTest",
             "Endpoint",
             "Test",
-            "Password123!"
+            "Password123!",
+            "Client"
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
@@ -35,7 +38,8 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "EndpointSecondTest",
             "Endpoint",
             "Second",
-            "Password123!"
+            "Password123!",
+            "Client"
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
@@ -53,7 +57,8 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "EndpointTest",
             "Endpoint",
             "Third",
-            "Password123!"
+            "Password123!",
+            "Client"
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
@@ -61,5 +66,50 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
 
         response.IsSuccessStatusCode.ShouldBeFalse();
         Assert.Equal("UsernameTaken", result?.Code);
+    }
+
+    [Fact]
+    public async Task LoginEndpoint_ShouldReturnOk()
+    {
+        var command = new LoginUserCommand(
+            "EndpointTest@example.com",
+            "Password123!"
+        );
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        string result = await response.Content.ReadAsStringAsync();
+
+        response.IsSuccessStatusCode.ShouldBeTrue();
+        result.ShouldNotBeNullOrWhiteSpace();
+    }
+
+
+    [Fact]
+    public async Task LoginEndpoint_ShouldReturnNotFound_WrongUsername()
+    {
+        var command = new LoginUserCommand(
+            "EndpointTestNotExist@example.com",
+            "Password123!"
+        );
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+        response.IsSuccessStatusCode.ShouldBeFalse();
+        Assert.Equal("UserNotFound", result?.Code);
+    }
+
+    [Fact]
+    public async Task LoginEndpoint_ShouldReturnUnauthorized_WrongPassword()
+    {
+        var command = new LoginUserCommand(
+            "EndpointTest@example.com",
+            "Passwordddddddddd123!"
+        );
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+
+        response.IsSuccessStatusCode.ShouldBeFalse();
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 }

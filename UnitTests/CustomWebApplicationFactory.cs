@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application;
-using Application.Abstractions.Authentication;
+﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Domain.Users;
-using Infrastructure;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tests.Users;
 using Web.Api;
-using DependencyInjection = Infrastructure.DependencyInjection;
 
 namespace Tests;
 
@@ -75,7 +66,23 @@ public class CustomWebApplicationFactory<TProgram>
             PasswordHash = passwordHasher.Hash("Password123!")
         };
 
+        Role role = new()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Client"
+        };
+
         dbContext.Users.Add(user);
+        dbContext.Roles.Add(role);
+        dbContext.SaveChanges();
+
+        UserRole userRole = new()
+        {
+            UserId = user.Id,
+            RoleId = role.Id
+        };
+
+        dbContext.UserRoles.Add(userRole);
         dbContext.SaveChanges();
     }
 }

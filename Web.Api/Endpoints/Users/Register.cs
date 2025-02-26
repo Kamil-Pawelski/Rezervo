@@ -12,6 +12,6 @@ public class Register : IEndpoint
             {
                 Result result = await sender.Send(command, cancellationToken);
                 
-                return result.IsSuccess ? Results.Ok() : MapErrorToResults.MapError(result.Error);
+                return result.IsSuccess ? Results.Ok(new {Message = "The account has been created."}) : MapErrorToResults.MapError(result.Error);
             });
 }

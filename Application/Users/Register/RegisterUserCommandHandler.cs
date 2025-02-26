@@ -33,8 +33,8 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
         };
 
         context.Users.Add(user);
-        
-        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == RolesNames.Client, cancellationToken: cancellationToken)).Id;
+
+        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == command.Role, cancellationToken: cancellationToken)).Id;
 
         var userRole = new UserRole
         {
