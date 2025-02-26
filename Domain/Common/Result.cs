@@ -8,7 +8,7 @@ public class Result(Error error)
     public static Result Success() => new(Error.None);
     public static Result<T> Success<T>(T value) => new(value, Error.None);
     public static Result Failure(Error error) => new(error);
-    public static Result<T> Failure<T>(T value, Error error) => new(value, error);
+    public static Result<T> Failure<T>(Error error) => new(default!, error);
 }
 
 public class Result<T>(T value, Error error) : Result(error)

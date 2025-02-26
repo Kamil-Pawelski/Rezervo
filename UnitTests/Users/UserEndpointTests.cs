@@ -1,14 +1,15 @@
 ﻿using Application.Users;
 using System.Net.Http.Json;
+using Application.Users.Register;
 using Shouldly;
+using Web.Api;
 
 namespace Tests.Users;
 
 [Collection("Factory")]
-public class UserEndpointTests 
+public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> factory)
 {
-    private readonly HttpClient _client;
-    public UserEndpointTests(CustomWebApplicationFactory<Program> factory) => _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task RegisterEndpoint_ShouldReturnOk()

@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tests.Users;
+using Web.Api;
 using DependencyInjection = Infrastructure.DependencyInjection;
 
 namespace Tests;
@@ -63,7 +64,7 @@ public class CustomWebApplicationFactory<TProgram>
 
         builder.UseEnvironment("Test");
     }
-    private void SeedTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
+    private static void SeedTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
     {
         User user = new()
         {

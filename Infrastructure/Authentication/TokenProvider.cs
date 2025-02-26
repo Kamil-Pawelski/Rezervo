@@ -6,7 +6,6 @@ using Domain.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace Infrastructure.Authentication;
 
@@ -14,7 +13,7 @@ public sealed class TokenProvider(IConfiguration configuration, IApplicationDbCo
 {
     public string Create(User user)
     {
-        string? secretKey = configuration["Jwt:SecretKey"];
+        string secretKey = configuration["Jwt:SecretKey"]!;
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

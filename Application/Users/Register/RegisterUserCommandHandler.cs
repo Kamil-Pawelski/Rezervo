@@ -5,7 +5,7 @@ using Domain.Common;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Users;
+namespace Application.Users.Register;
 
 public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher)
     : ICommandHandler<RegisterUserCommand>
@@ -33,6 +33,16 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
         };
 
         context.Users.Add(user);
+        
+        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == RolesNames.Client, cancellationToken: cancellationToken)).Id;
+
+        var userRole = new UserRole
+        {
+            UserId = user.Id,
+            RoleId = roleId
+        };
+
+        context.UserRoles.Add(userRole);
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

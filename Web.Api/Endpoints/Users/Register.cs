@@ -1,4 +1,4 @@
-﻿using Application.Users;
+﻿using Application.Users.Register;
 using Domain.Common;
 using MediatR;
 

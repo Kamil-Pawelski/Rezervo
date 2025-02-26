@@ -111,12 +111,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 .HasForeignKey(booking => booking.ScheduleId);
         });
 
-        /*modelBuilder.Entity<Role>()
+        modelBuilder.Entity<Role>()
             .HasData(
-                new Role { Id = 1, Name = RolesConstants.User },
-                new Role { Id = 2, Name = RolesConstants.Specialist }
-                new Role { Id = 3, Name = RolesConstants.Administrator }
-            );*/
+                new Role { Id = new Guid("dc6c3733-c8b7-41fa-bfa0-b77eb710f9c3"), Name = RolesNames.Admin },
+                new Role { Id = new Guid("7a4a1573-aa6e-4504-885e-bbb3a04872f5"), Name = RolesNames.Specialist },
+                new Role { Id = new Guid("dd514642-f330-4950-ab3d-a3b454de9fc9"), Name = RolesNames.Client }
+            );
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await base.SaveChangesAsync(cancellationToken);

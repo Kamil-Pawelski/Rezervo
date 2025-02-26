@@ -4,6 +4,7 @@ using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250226111036_Roles")]
+    partial class Roles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,17 +145,17 @@ namespace Infrastructure.Database.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("dc6c3733-c8b7-41fa-bfa0-b77eb710f9c3"),
+                            Id = new Guid("bb8deb6a-f586-461d-8dbb-ad0fbe2a05bc"),
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("7a4a1573-aa6e-4504-885e-bbb3a04872f5"),
+                            Id = new Guid("cc4c1f40-f6a1-4ba2-9029-3476f92b6438"),
                             Name = "Specialist"
                         },
                         new
                         {
-                            Id = new Guid("dd514642-f330-4950-ab3d-a3b454de9fc9"),
+                            Id = new Guid("7b8c76e5-636f-4ebd-9254-b3845539409c"),
                             Name = "Client"
                         });
                 });

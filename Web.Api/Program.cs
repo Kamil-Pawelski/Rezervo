@@ -35,4 +35,9 @@ app.MapEndpoints();
 
 await app.RunAsync();
 
-public partial class Program { }
+
+namespace Web.Api
+{
+    public partial class Program;
+}
+

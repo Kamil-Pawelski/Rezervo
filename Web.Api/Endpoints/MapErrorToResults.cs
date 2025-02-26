@@ -11,6 +11,7 @@ public static class MapErrorToResults
             ErrorType.BadRequest => Results.BadRequest(new { error.Code, error.Description }),
             ErrorType.NotFound => Results.NotFound(new { error.Code, error.Description }),
             ErrorType.Conflict => Results.Conflict(new { error.Code, error.Description }),
+            ErrorType.Unauthorized => Results.Unauthorized(),
             _ => Results.BadRequest(new { error.Code, error.Description })
         };
 }

@@ -11,23 +11,23 @@ public sealed class User
     public Guid Id { get; set; }
     [Required]
     [MaxLength(32)]
-    public string Username { get; set; }
+    public required string Username { get; set; }
     [Required]
     [MaxLength(64)]
     [EmailAddress]
-    public string Email { get; set; }
+    public required string Email { get; set; }
     [Required]
     [MaxLength(32)]
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
     [Required]
     [MaxLength(32)]
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
     [Required]
     [MaxLength(255)]
-    public string PasswordHash { get; set; }
+    public required string PasswordHash { get; set; }
 
 
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public ICollection<Specialist> Specialists { get; set; } = new List<Specialist>();
-    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<Specialist> Specialists { get; set; } = [];
+    public ICollection<Booking> Bookings { get; set; } = [];
 }
