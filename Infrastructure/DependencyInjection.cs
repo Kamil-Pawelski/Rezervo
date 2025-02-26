@@ -15,7 +15,7 @@ public static class DependencyInjection
         IConfiguration configuration) =>
         services
             .AddDatabase(configuration)
-            .AddAuthenticationInternal(configuration);
+            .AddAuthenticationInternal();
 
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -30,8 +30,7 @@ public static class DependencyInjection
     }
 
     private static IServiceCollection AddAuthenticationInternal(
-        this IServiceCollection services,
-        IConfiguration configuration)
+        this IServiceCollection services)
     {
         
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
