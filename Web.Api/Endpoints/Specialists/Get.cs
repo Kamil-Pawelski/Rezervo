@@ -1,19 +1,20 @@
 ﻿using Application.Specialists.Get;
 using Domain.Common;
 using MediatR;
-using Microsoft.AspNetCore.Routing;
-using Web.Api.Endpoints;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Tests.Specialists;
+namespace Web.Api.Endpoints.Specialists;
 
 public sealed class Get : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app) =>
         app.MapGet("specialists",
-            async (GetSpecialistsQuery query, ISender sender, CancellationToken cancellationToken) =>
-        {
-            Result<List<SpecialistsResponse>> result = await sender.Send(query, cancellationToken);
+            async (ISender sender, CancellationToken cancellationToken) =>
+            {
+                GetSpecialistsQuery query = new();
+                Result<List<SpecialistsResponse>> result = await sender.Send(query, cancellationToken);
 
-            return result.IsSuccess ? Results.Ok(result.Value) : MapErrorToResults.MapError(result.Error);
-        });
+                return result.IsSuccess ? Results.Ok(result.Value) : MapErrorToResults.MapError(result.Error);
+            });
 }
+

@@ -18,7 +18,7 @@ public sealed class Specialist
     [Phone]
     public required string PhoneNumber { get; set; }
 
-    public User User { get; set; }
-    public Specialization Specialization { get; set; }
+    public User? User { get; set; }
+    public Specialization? Specialization { get; set; }
     public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 }

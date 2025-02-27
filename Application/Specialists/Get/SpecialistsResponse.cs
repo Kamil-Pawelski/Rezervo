@@ -4,11 +4,11 @@ namespace Application.Specialists.Get;
 
 public class SpecialistsResponse
 {
-    public Guid Id { get; set; }
-    public UserDto User { get; set; }
-    public SpecializationDto Specialization { get; set; }
-    public string Description { get; set; }
-    public string PhoneNumber { get; set; }
+    public required Guid Id { get; set; }
+    public required UserDto User { get; set; }
+    public required SpecializationDto Specialization { get; set; }
+    public required string Description { get; set; }
+    public required string PhoneNumber { get; set; }
 
 }
 

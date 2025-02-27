@@ -34,7 +34,7 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
 
         context.Users.Add(user);
 
-        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == command.Role, cancellationToken: cancellationToken)).Id;
+        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == command.Role, cancellationToken)).Id;
 
         var userRole = new UserRole
         {
@@ -42,7 +42,7 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
             RoleId = roleId
         };
 
-        context.UserRoles.Add(userRole);
+        await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
