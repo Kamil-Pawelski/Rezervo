@@ -13,10 +13,10 @@ public sealed class Specialist
     [Required]
     public Guid SpecializationId { get; set; }
     [Required]
-    public string Description { get; set; }
+    public required string Description { get; set; }
     [Required]
     [Phone]
-    public string PhoneNumber { get; set; }
+    public required string PhoneNumber { get; set; }
 
     public User User { get; set; }
     public Specialization Specialization { get; set; }

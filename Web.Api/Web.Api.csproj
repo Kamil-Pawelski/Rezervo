@@ -20,7 +20,6 @@
   <ItemGroup>
     <Folder Include="Endpoints\Bookings\" />
     <Folder Include="Endpoints\Schedule\" />
-    <Folder Include="Endpoints\Specialists\" />
   </ItemGroup>
 
 </Project>

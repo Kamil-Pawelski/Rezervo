@@ -4,7 +4,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Bookings\" />
-    <Folder Include="Specialists\" />
     <Folder Include="Schedules\" />
   </ItemGroup>
   <ItemGroup>
