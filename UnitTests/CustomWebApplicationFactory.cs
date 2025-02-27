@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using Domain.Specialists;
 using Domain.Users;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tests.Specialists;
 using Tests.Users;
 using Web.Api;
 
@@ -22,6 +24,7 @@ public class CustomWebApplicationFactory<TProgram>
         {
             config.AddJsonFile("appsettings.json");
             config.AddUserSecrets<UserEndpointTests>();
+            config.AddUserSecrets<SpecialistsEndpointTests>();
         });
 
         builder.ConfigureServices((context, services) =>
@@ -29,7 +32,7 @@ public class CustomWebApplicationFactory<TProgram>
             string? connectionString = context.Configuration.GetConnectionString("TestConnection");
             ServiceDescriptor? dbContextDescriptor = services.SingleOrDefault(
                 d => d.ServiceType ==
-                    typeof(DbContextOptions<ApplicationDbContext>));
+                     typeof(DbContextOptions<ApplicationDbContext>));
 
             if (dbContextDescriptor != null)
             {
@@ -41,7 +44,8 @@ public class CustomWebApplicationFactory<TProgram>
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+            services.AddScoped<IApplicationDbContext>(serviceProvider =>
+                serviceProvider.GetRequiredService<ApplicationDbContext>());
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             using IServiceScope scope = services.BuildServiceProvider().CreateScope();
@@ -50,40 +54,11 @@ public class CustomWebApplicationFactory<TProgram>
             db.Database.Migrate();
             IPasswordHasher passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-            SeedTestData(db, passwordHasher);
+            SeedData.SeedUserTestData(db, passwordHasher);
+            SeedData.SeedSpecialistTestData(db);
         });
 
         builder.UseEnvironment("Test");
-    }
-    private static void SeedTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
-    {
-        User user = new()
-        {
-            Email = "EndpointTest@example.com",
-            Username = "EndpointTest",
-            FirstName = "Endpoint",
-            LastName = "Test",
-            PasswordHash = passwordHasher.Hash("Password123!")
-        };
-
-        Role role = new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Client"
-        };
-
-        dbContext.Users.Add(user);
-        dbContext.Roles.Add(role);
-        dbContext.SaveChanges();
-
-        UserRole userRole = new()
-        {
-            UserId = user.Id,
-            RoleId = role.Id
-        };
-
-        dbContext.UserRoles.Add(userRole);
-        dbContext.SaveChanges();
     }
 }
 

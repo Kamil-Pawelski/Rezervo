@@ -1,18 +1,16 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Users.Login;
+﻿using Application.Users.Login;
 using Application.Users.Register;
 using Domain.Common;
 using Domain.Users;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Shouldly;
 
 namespace Tests.Users;
 
-public class UserUnitTests
+public sealed class UserUnitTests
 {
     private readonly RegisterUserCommandHandler _registerUserCommandHandler;
     private readonly LoginUserCommandHandler _loginUserCommandHandler;
@@ -23,7 +21,6 @@ public class UserUnitTests
     public UserUnitTests()
     {
         _configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
             .AddUserSecrets<UserUnitTests>()
             .Build();
 
