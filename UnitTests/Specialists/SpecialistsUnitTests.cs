@@ -1,4 +1,5 @@
-﻿using Application.Specialists.Create;
+﻿using Application.Specialists;
+using Application.Specialists.Create;
 using Application.Specialists.Get;
 using Domain.Common;
 using Domain.Specialists;
@@ -51,7 +52,8 @@ public sealed class SpecialistsUnitTests
             UserId = user.Id,
             SpecializationId = specialization.Id,
             Description = "Test Description",
-            PhoneNumber = "123456789"
+            PhoneNumber = "123456789",
+            City = "Warsaw"
         };
 
         _context.Specializations.Add(specialization);
@@ -77,7 +79,8 @@ public sealed class SpecialistsUnitTests
             Guid.NewGuid(),
             "Test Specialization",
             "Test Description",
-            "123456789"
+            "123456789",
+            "Warsaw"
         );
 
         Result result = await _createSpecialistCommandHandler.Handle(command, CancellationToken.None);

@@ -1,6 +1,4 @@
-﻿using Domain.Users;
-
-namespace Application.Specialists.Get;
+﻿namespace Application.Specialists;
 
 public class SpecialistsResponse
 {

@@ -2,8 +2,8 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Application.Specialists;
 using Application.Specialists.Create;
-using Application.Specialists.Get;
 using Application.Users.Login;
 using Infrastructure.Authentication;
 using Shouldly;
@@ -49,7 +49,8 @@ public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program
             SeedData.TestUserId,
             SeedData.TestSpecializationName,
             "123456789",
-            "Test Description"
+            "Test Description",
+            "Warsaw"
         );
 
         var request = new HttpRequestMessage(HttpMethod.Post, "specialists")

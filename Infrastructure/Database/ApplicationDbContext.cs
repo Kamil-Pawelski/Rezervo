@@ -61,6 +61,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(specialist => specialist.UserId).IsRequired();
             entity.Property(specialist => specialist.SpecializationId).IsRequired();
             entity.Property(specialist => specialist.PhoneNumber).IsRequired();
+            entity.Property(specialist => specialist.City).IsRequired();
 
             entity.HasOne(specialist => specialist.Specialization)
                 .WithMany(specialization => specialization.Specialists)

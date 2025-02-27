@@ -17,6 +17,8 @@ public sealed class Specialist
     [Required]
     [Phone]
     public required string PhoneNumber { get; set; }
+    [Required]
+    public required string City { get; set; }
 
     public User? User { get; set; }
     public Specialization? Specialization { get; set; }

@@ -20,8 +20,6 @@ public sealed class GetSpecialistsQueryHandler(IApplicationDbContext context) : 
             Description = specialist.Description
         }).ToListAsync(cancellationToken);
 
-        var specialistList = context.Specialists.ToList();
-
         return new Result<List<SpecialistsResponse>>(result, Error.None);
     }
 }

@@ -23,6 +23,7 @@ public static class SeedData
     public static readonly Guid TestSpecialistId = Guid.NewGuid();
     public static readonly string TestSpecialistDescription = "Test Description";
     public static readonly string TestSpecialistPhoneNumber = "123456789";
+    public static readonly string TestSpecialistCity = "Warsaw";
 
     public static void SeedUserTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
     {
@@ -72,7 +73,8 @@ public static class SeedData
             UserId = userId,
             SpecializationId = TestSpecializationId,
             Description = TestSpecialistDescription,
-            PhoneNumber = TestSpecialistPhoneNumber
+            PhoneNumber = TestSpecialistPhoneNumber,
+            City = TestSpecialistCity
         };
 
         dbContext.Specializations.Add(specialization);

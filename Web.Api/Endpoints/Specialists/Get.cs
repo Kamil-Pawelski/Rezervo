@@ -1,4 +1,5 @@
-﻿using Application.Specialists.Get;
+﻿using Application.Specialists;
+using Application.Specialists.Get;
 using Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

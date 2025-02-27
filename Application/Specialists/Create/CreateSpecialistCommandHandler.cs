@@ -19,7 +19,8 @@ public sealed class CreateSpecialistCommandHandler(IApplicationDbContext context
             UserId = command.UserId,
             SpecializationId = specializationId,
             PhoneNumber = command.PhoneNumber,
-            Description = command.Description
+            Description = command.Description,
+            City = command.City
         };
 
         await context.Specialists.AddAsync(specialist, cancellationToken);
