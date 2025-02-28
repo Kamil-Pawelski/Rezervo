@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.Abstractions.Messaging;
 
-namespace Application.Specialists.Delete
-{
-    class DeleteSpecialistCommand
-    {
-    }
-}
+namespace Application.Specialists.Delete;
+
+public sealed record DeleteSpecialistCommand(Guid Id) : ICommand<string>;

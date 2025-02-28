@@ -16,7 +16,7 @@ public sealed class GetByIdSpecialistQueryHandler(IApplicationDbContext context)
             .Include(s => s.Specialization)
             .SingleOrDefaultAsync(s => s.Id == query.Id, cancellationToken);
 
-        if (specialist == null)
+        if (specialist is null)
         {
             return Result.Failure<SpecialistsResponse>(new Error("SpecialistNotFound", "Specialist with the given id does not exist", ErrorType.NotFound));
         }
