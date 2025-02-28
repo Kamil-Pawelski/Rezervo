@@ -7,6 +7,7 @@ public class SpecialistsResponse
     public required SpecializationDto Specialization { get; set; }
     public required string Description { get; set; }
     public required string PhoneNumber { get; set; }
+    public required string City { get; set; }
 
 }
 

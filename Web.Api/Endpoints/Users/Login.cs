@@ -1,6 +1,7 @@
 ﻿using Application.Users.Login;
 using Domain.Common;
 using MediatR;
+using Web.Api.Mapper;
 
 namespace Web.Api.Endpoints.Users;
 
@@ -12,6 +13,6 @@ public class Login : IEndpoint
             {
                 Result<string> result = await ISender.Send(command, cancellationToken);
 
-                return result.IsSuccess ? Results.Ok(new { Token = result.Value }) : MapErrorToResults.MapError(result.Error);
+                return result.IsSuccess ? Results.Ok(new { Token = result.Value }) : result.Error.MapError();
             });
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Mapper;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,14 +12,11 @@ public sealed class GetSpecialistsQueryHandler(IApplicationDbContext context) : 
         CancellationToken cancellationToken)
     {
 
-        List<SpecialistsResponse> result = await context.Specialists.AsNoTracking().Select(specialist => new SpecialistsResponse
-        {
-            Id = specialist.Id,
-            User = new UserDto(specialist.User!.Id, specialist.User.FirstName, specialist.User.LastName),
-            Specialization = new SpecializationDto(specialist.Specialization!.Id, specialist.Specialization.Name),
-            PhoneNumber = specialist.PhoneNumber,
-            Description = specialist.Description
-        }).ToListAsync(cancellationToken);
+        List<SpecialistsResponse> result = await context.Specialists
+            .Include(s => s.User)
+            .Include(s => s.Specialization)
+            .Select(specialist => specialist.MapToSpecialistResponse())
+            .ToListAsync(cancellationToken);
 
         return new Result<List<SpecialistsResponse>>(result, Error.None);
     }

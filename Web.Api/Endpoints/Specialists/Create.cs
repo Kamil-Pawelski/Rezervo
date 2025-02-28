@@ -3,6 +3,7 @@ using Domain.Common;
 using Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Web.Api.Mapper;
 
 namespace Web.Api.Endpoints.Specialists;
 
@@ -15,7 +16,7 @@ public class Create : IEndpoint
         {
             Result result = await iSender.Send(createSpecialistCommand, cancellationToken);
 
-            return result.IsSuccess ? Results.Ok(new { Message = "The specialist account has been created." }) : Results.BadRequest();
+            return result.IsSuccess ? Results.Ok(new { Message = "The specialist account has been created." }) : result.Error.MapError();
         }
     );
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Mapper;
 using Domain.Common;
 using Domain.Specialists;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +21,7 @@ public sealed class GetByIdSpecialistQueryHandler(IApplicationDbContext context)
             return Result.Failure<SpecialistsResponse>(new Error("SpecialistNotFound", "Specialist with the given id does not exist", ErrorType.NotFound));
         }
 
-        var specialistResponse = new SpecialistsResponse
-        {
-            Id = specialist.Id,
-            User = new UserDto(specialist.User!.Id, specialist.User.FirstName, specialist.User.LastName),
-            Specialization = new SpecializationDto(specialist.Specialization!.Id, specialist.Specialization.Name),
-            PhoneNumber = specialist.PhoneNumber,
-            Description = specialist.Description
-        };
+        SpecialistsResponse specialistResponse = specialist.MapToSpecialistResponse();
 
         return new Result<SpecialistsResponse>(specialistResponse, Error.None);
     }

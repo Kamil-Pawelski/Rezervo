@@ -2,6 +2,7 @@
 using Application.Specialists.GetById;
 using Domain.Common;
 using MediatR;
+using Web.Api.Mapper;
 
 namespace Web.Api.Endpoints.Specialists;
 
@@ -14,6 +15,6 @@ public class GetById : IEndpoint
 
         Result<SpecialistsResponse> result = await isender.Send(query, cancellationToken);
 
-        return result.IsSuccess ? Results.Ok(result.Value) : MapErrorToResults.MapError(result.Error);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.Error.MapError();
     });
 }

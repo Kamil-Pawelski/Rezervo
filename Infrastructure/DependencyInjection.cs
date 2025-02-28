@@ -51,6 +51,7 @@ public static class DependencyInjection
         
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddScoped<IUserContext, UserContext>();
 
         return services;
     }
