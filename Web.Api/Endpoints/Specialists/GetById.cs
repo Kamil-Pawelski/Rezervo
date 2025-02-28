@@ -2,6 +2,7 @@
 using Application.Specialists.GetById;
 using Domain.Common;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Web.Api.Mapper;
 
 namespace Web.Api.Endpoints.Specialists;
@@ -9,7 +10,7 @@ namespace Web.Api.Endpoints.Specialists;
 public class GetById : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app) =>
-    app.MapGet("specialists/{id}", async (Guid id, ISender isender, CancellationToken cancellationToken) =>
+    app.MapGet("specialists/{id}", async ([FromRoute]Guid id, ISender isender, CancellationToken cancellationToken) =>
     {
         var query = new GetByIdSpecialistQuery(id);
 

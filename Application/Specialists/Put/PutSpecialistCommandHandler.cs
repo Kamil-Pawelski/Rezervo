@@ -22,7 +22,7 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
 
         if (loggedUserId != command.UserId)
         {
-            return Result.Failure<SpecialistsResponse>(new Error("UnauthorizedEdit",
+            return Result.Failure<SpecialistsResponse>(new Error("WrongUser",
                 "You are not allowed to edit another user's data.", ErrorType.Forbidden));
         }
 
