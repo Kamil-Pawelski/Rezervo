@@ -17,7 +17,7 @@ public sealed class GetBySpecializationSpecialistsCommandHandler(IApplicationDbC
             .Where(s => s.SpecializationId == command.Id)
             .Select(s => s.MapToSpecialistResponse())
             .ToListAsync(cancellationToken);
-
+        
         if (result.Count == 0)
         {
             return Result.Failure<List<SpecialistsResponse>>(new Error("SpecialistsNotFound", "Specialist with the given specialization id does not exist", ErrorType.NotFound));

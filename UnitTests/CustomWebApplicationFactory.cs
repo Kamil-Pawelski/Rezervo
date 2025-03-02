@@ -47,6 +47,7 @@ public class CustomWebApplicationFactory<TProgram>
             services.AddScoped<IApplicationDbContext>(serviceProvider =>
                 serviceProvider.GetRequiredService<ApplicationDbContext>());
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            services.AddHttpContextAccessor();
 
             using IServiceScope scope = services.BuildServiceProvider().CreateScope();
             ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

@@ -4,6 +4,7 @@ using Application.Specialists.Create;
 using Application.Specialists.Delete;
 using Application.Specialists.Get;
 using Application.Specialists.GetById;
+using Application.Specialists.GetBySpecialization;
 using Application.Specialists.Put;
 using Domain.Common;
 using Domain.Specialists;
@@ -17,14 +18,12 @@ namespace Tests.Specialists;
 public sealed class SpecialistsUnitTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
-    private readonly GetSpecialistsQueryHandler _getSpecialistsQueryHandler;
-    private readonly GetByIdSpecialistQueryHandler _getByIdSpecialistsQueryHandler;
-    private readonly CreateSpecialistCommandHandler _createSpecialistCommandHandler;
-    private readonly PutSpecialistCommandHandler _putSpecialistCommandHandler;
+
     private readonly TestUserContext _userContext;
 
     private Guid _existingSpecialistId;
     private Guid _existingUserId;
+    private Guid _existingSpecializationId;
 
     public SpecialistsUnitTests()
     {
@@ -35,17 +34,15 @@ public sealed class SpecialistsUnitTests : IDisposable
         _context = new ApplicationDbContext(options);
         _userContext = new TestUserContext();
 
-        _createSpecialistCommandHandler = new CreateSpecialistCommandHandler(_context);
-        _getSpecialistsQueryHandler = new GetSpecialistsQueryHandler(_context);
-        _getByIdSpecialistsQueryHandler = new GetByIdSpecialistQueryHandler(_context);
-        _putSpecialistCommandHandler = new PutSpecialistCommandHandler(_context, _userContext);
-
         SeedData();
     }
 
     private void SeedData()
     {
         _existingUserId = Guid.NewGuid();
+        _existingSpecialistId = Guid.NewGuid();
+        _existingSpecializationId = Guid.NewGuid();
+
         var user = new User
         {
             Id = _existingUserId,
@@ -58,16 +55,16 @@ public sealed class SpecialistsUnitTests : IDisposable
 
         var specialization = new Specialization
         {
-            Id = Guid.NewGuid(),
+            Id =  _existingSpecializationId,
             Name = "Test Specialization"
         };
 
-        _existingSpecialistId = Guid.NewGuid();
+
         var specialist = new Specialist
         {
             Id = _existingSpecialistId,
             UserId = _existingUserId,
-            SpecializationId = specialization.Id,
+            SpecializationId = _existingSpecializationId,
             Description = "Test Description",
             PhoneNumber = "123456789",
             City = "Warsaw"
@@ -83,7 +80,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task GetSpecialistsTest_ShouldReturnSpecialists()
     {
         var query = new GetSpecialistsQuery();
-        Result<List<SpecialistsResponse>> result = await _getSpecialistsQueryHandler.Handle(query, CancellationToken.None);
+        Result<List<SpecialistsResponse>> result = await new GetSpecialistsQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -94,7 +91,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task GetByIdSpecialistTask_ShouldReturnSpecialist()
     {
         var query = new GetByIdSpecialistQuery(_existingSpecialistId);
-        Result<SpecialistsResponse> result = await _getByIdSpecialistsQueryHandler.Handle(query, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -105,7 +102,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task GetByIdSpecialistTask_ShouldReturnNotFound()
     {
         var query = new GetByIdSpecialistQuery(Guid.NewGuid());
-        Result<SpecialistsResponse> result = await _getByIdSpecialistsQueryHandler.Handle(query, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Type.ShouldBe(ErrorType.NotFound);
@@ -122,27 +119,9 @@ public sealed class SpecialistsUnitTests : IDisposable
             "Warsaw"
         );
 
-        Result result = await _createSpecialistCommandHandler.Handle(command, CancellationToken.None);
+        Result result = await new CreateSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task PutSpecialistTest_ShouldReturnUnauthorized()
-    {
-        var command = new PutSpecialistCommand(
-            _existingSpecialistId,
-            _existingUserId,
-            "Test Description",
-            "123456789",
-            "Cracow"
-        );
-
-        _userContext.UserId = Guid.Empty;
-        Result<SpecialistsResponse> result = await _putSpecialistCommandHandler.Handle(command, CancellationToken.None);
-
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.Unauthorized);
     }
 
     [Fact]
@@ -157,7 +136,7 @@ public sealed class SpecialistsUnitTests : IDisposable
         );
 
         _userContext.UserId = Guid.NewGuid();
-        Result<SpecialistsResponse> result = await _putSpecialistCommandHandler.Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Type.ShouldBe(ErrorType.Forbidden);
@@ -176,7 +155,7 @@ public sealed class SpecialistsUnitTests : IDisposable
         );
 
         _userContext.UserId = _existingUserId;
-        Result<SpecialistsResponse> result = await _putSpecialistCommandHandler.Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.City.ShouldBe("Cracow");
@@ -193,7 +172,7 @@ public sealed class SpecialistsUnitTests : IDisposable
             "Cracow"
         );
         _userContext.UserId = _existingUserId;
-        Result<SpecialistsResponse> result = await _putSpecialistCommandHandler.Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Type.ShouldBe(ErrorType.NotFound);
     }
@@ -212,16 +191,29 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task DeleteSpecialistTest_ShouldReturnOk()
     {
         var command = new DeleteSpecialistCommand(_existingSpecialistId);
-        Result<string> result =
-            await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
     }
 
-    public void Dispose()
+    [Fact]
+    public async Task GetBySpecialistsSpecialistTest_ShouldReturnOk()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
+        var command = new GetBySpecializationSpecialitsCommand(_existingSpecializationId);
+        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task GetBySpecialistsSpecialistTest_ShouldReturnNotFound()
+    {
+        var command = new GetBySpecializationSpecialitsCommand(Guid.NewGuid());
+        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeFalse();
+        result.Error.Type.ShouldBe(ErrorType.NotFound);
+    }
+
+    public void Dispose() => _context.Dispose();
 
     public class TestUserContext() : IUserContext
     {

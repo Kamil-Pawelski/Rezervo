@@ -14,19 +14,16 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
     {
         Guid loggedUserId = userContext.UserId;
 
-        if (loggedUserId == Guid.Empty)
-        {
-            return Result.Failure<SpecialistsResponse>(new Error("NotLoggedIn",
-                "You can't edit data if you are not logged in", ErrorType.Unauthorized));
-        }
-
         if (loggedUserId != command.UserId)
         {
             return Result.Failure<SpecialistsResponse>(new Error("WrongUser",
                 "You are not allowed to edit another user's data.", ErrorType.Forbidden));
         }
 
-        Specialist? specialist = await context.Specialists.FirstOrDefaultAsync(specialist => specialist.Id == command.Id, cancellationToken);
+        Specialist? specialist = await context.Specialists
+            .Include(s => s.Specialization)
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(specialist => specialist.Id == command.Id, cancellationToken);
 
         if (specialist is null)
         {

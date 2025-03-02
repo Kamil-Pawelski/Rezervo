@@ -11,9 +11,9 @@ namespace Web.Api.Endpoints.Specialists;
 public sealed class Delete : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app) =>
-    app.MapDelete("specialists/{id}", [Authorize(Roles = RolesNames.Admin)] async ([FromRoute]Guid id , [FromBody]DeleteSpecialistCommand command, ISender sender, CancellationToken cancellationToken) =>
+    app.MapDelete("specialists/{id}", [Authorize(Roles = RolesNames.Admin)] async ([FromRoute]Guid id , ISender sender, CancellationToken cancellationToken) =>
     {
-        Result<string> result = await sender.Send(command with { Id = id }, cancellationToken);
+        Result<string> result = await sender.Send(new DeleteSpecialistCommand(id), cancellationToken);
 
         return result.IsSuccess ? Results.Ok(new { Message = result.Value }) : result.Error.MapError();
     });
