@@ -15,6 +15,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<Slot> Slots { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
