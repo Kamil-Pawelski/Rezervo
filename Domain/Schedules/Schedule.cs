@@ -18,8 +18,8 @@ public sealed class Schedule
     public DateOnly Date { get; set; }
 
     public Specialist? Specialist { get; set; }
-    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-    public ICollection<Slot> Slots { get; set; } = new List<Slot>();
+    public ICollection<Booking> Bookings { get; set; } = [];
+    public ICollection<Slot> Slots { get; set; } = [];
 
     public void GenerateSlots(int slotDuration)
     {
