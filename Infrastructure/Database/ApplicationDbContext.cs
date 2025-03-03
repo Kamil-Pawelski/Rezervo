@@ -86,13 +86,28 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(schedule => schedule.SpecialistId).IsRequired();
             entity.Property(schedule => schedule.StartTime).IsRequired();
             entity.Property(schedule => schedule.EndTime).IsRequired();
-            entity.Property(schedule => schedule.Status).IsRequired();
+            entity.Property(schedule => schedule.Date).IsRequired();
 
             entity.HasOne(schedule => schedule.Specialist)
                 .WithMany(specialist => specialist.Schedules)
                 .HasForeignKey(schedule => schedule.SpecialistId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Schedule>()
+                .HasMany(s => s.Slots)
+                .WithOne(s => s.Schedule)
+                .HasForeignKey(s => s.ScheduleId) 
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<Slot>(entity =>
+        {
+            entity.Property(slot => slot.ScheduleId).IsRequired();
+            entity.Property(slot => slot.StartTime).IsRequired();
+            entity.Property(slot => slot.Status).IsRequired();
+
+        });
+        
 
         modelBuilder.Entity<Booking>(entity =>
         {
@@ -100,7 +115,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.HasIndex(booking => booking.ScheduleId).IsUnique();
             entity.Property(booking => booking.UserId).IsRequired();
             entity.Property(booking => booking.ScheduleId).IsRequired();
-            entity.Property(booking => booking.Created).IsRequired();
+            entity.Property(booking => booking.CreatedDateTime).IsRequired();
 
             entity.HasOne(booking => booking.User)
                 .WithMany(user => user.Bookings)

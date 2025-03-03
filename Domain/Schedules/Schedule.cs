@@ -11,13 +11,31 @@ public sealed class Schedule
     [Required]
     public Guid SpecialistId { get; set; }
     [Required]
-    public DateTime StartTime { get; set; }
+    public TimeOnly StartTime { get; set; }
     [Required]
-    public DateTime EndTime { get; set; }
+    public TimeOnly EndTime { get; set; }
     [Required]
-    public Status Status { get; set; }
+    public DateOnly Date { get; set; }
 
-    public Specialist Specialist { get; set; }
-
+    public Specialist? Specialist { get; set; }
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Slot> Slots { get; set; } = new List<Slot>();
+
+    public void GenerateSlots(int slotDuration)
+    {
+        TimeOnly currentTime = StartTime;
+
+        while (currentTime < EndTime)
+        {
+            Slots.Add(new Slot
+            {
+                Id = Guid.NewGuid(),
+                ScheduleId = Id,
+                StartTime = currentTime,
+                Status = Status.Available
+            });
+            currentTime = currentTime.AddMinutes(slotDuration);
+        }
+    }
+
 }

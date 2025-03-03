@@ -12,8 +12,8 @@ public sealed class Booking
     public Guid UserId { get; set; }
     [Required]
     public Guid ScheduleId { get; set; }
-    [Required]
-    public DateTime Created { get; set; }
+    [Required] 
+    public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
 
     public User User { get; set; }
     public Schedule Schedule { get; set; }

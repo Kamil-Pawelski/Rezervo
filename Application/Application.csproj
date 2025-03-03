@@ -8,7 +8,6 @@
     <Folder Include="Bookings\GetById\" />
     <Folder Include="Bookings\Get\" />
     <Folder Include="Bookings\Put\" />
-    <Folder Include="Schedules\Create\" />
     <Folder Include="Schedules\GetById\" />
     <Folder Include="Schedules\Get\" />
     <Folder Include="Schedules\Delete\" />
