@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\Bookings\" />
+    <Folder Include="Endpoints\Slots\" />
   </ItemGroup>
 
 </Project>

@@ -17,14 +17,12 @@ public sealed class DeleteScheduleCommandHandler(IApplicationDbContext context, 
 
         if (result is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSchedule", "Schedule with given id does not exist",
-                ErrorType.NotFound));
+            return Result.Failure<string>(new Error("NotFoundSchedule", "Schedule with the given id does not exist", ErrorType.NotFound));
         }
 
         if (result.Specialist!.UserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to delete this schedule",
-                ErrorType.Unauthorized));
+            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to delete this schedule", ErrorType.Unauthorized));
         }
 
         context.Schedules.Remove(result);

@@ -1,9 +1,7 @@
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Specialists;
 using Domain.Common;
 using Domain.Schedules;
-using MediatR;
 
 namespace Application.Schedules.Create;
 
@@ -15,7 +13,6 @@ public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) 
         {
             return Result.Failure<string>(
                 new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Validation));
-
         }
 
         var schedule = new Schedule

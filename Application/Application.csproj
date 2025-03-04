@@ -9,7 +9,6 @@
     <Folder Include="Bookings\Get\" />
     <Folder Include="Bookings\Put\" />
     <Folder Include="Slots\" />
-    <Folder Include="Schedules\Put\" />
     <Folder Include="Specialization\Create\" />
     <Folder Include="Specialization\Delete\" />
     <Folder Include="Specialization\Get\" />
