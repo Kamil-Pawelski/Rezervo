@@ -8,7 +8,7 @@
     <Folder Include="Bookings\GetById\" />
     <Folder Include="Bookings\Get\" />
     <Folder Include="Bookings\Put\" />
-    <Folder Include="Slots\" />
+    <Folder Include="Slots\Delete\" />
     <Folder Include="Specialization\Create\" />
     <Folder Include="Specialization\Delete\" />
     <Folder Include="Specialization\Get\" />
