@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Schedules;
 
-namespace Domain.Schedules;
+namespace Domain.Slots;
 
 public sealed class Slot
 {

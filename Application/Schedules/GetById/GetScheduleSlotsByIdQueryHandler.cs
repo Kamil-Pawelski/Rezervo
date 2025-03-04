@@ -11,7 +11,7 @@ public sealed class GetScheduleSlotsByIdQueryHandler(IApplicationDbContext conte
     public async Task<Result<List<SlotResponse>>> Handle(GetScheduleSlotsByIdQuery query,
         CancellationToken cancellationToken)
     {
-        List<SlotResponse> result = await context.Slots.Where(x => x.ScheduleId == query.ScheduleId)
+        List<SlotResponse> result = await context.Slots.Where(slot => slot.ScheduleId == query.ScheduleId && slot.Status == Status.Available)
             .Select(slot => new SlotResponse
             {
                 Id = slot.Id,

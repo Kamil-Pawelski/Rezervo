@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Bookings;
 using Domain.Specialists;
+using Domain.Slots;
 
 namespace Domain.Schedules;
 public sealed class Schedule
