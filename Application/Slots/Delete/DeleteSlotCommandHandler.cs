@@ -17,7 +17,6 @@ public sealed class DeleteSlotCommandHandler(IApplicationDbContext context, IUse
             .ThenInclude(schedule => schedule!.Specialist)
             .FirstOrDefaultAsync(slot => slot.Id == command.Id, cancellationToken);
 
-
         if (slot is null)
         {
             return Result.Failure<string>(new Error("NotFoundSlot", "Slot with the given id does not exist",

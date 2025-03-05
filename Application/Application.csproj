@@ -3,7 +3,6 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Bookings\Create\" />
     <Folder Include="Bookings\Delete\" />
     <Folder Include="Bookings\GetById\" />
     <Folder Include="Bookings\Get\" />

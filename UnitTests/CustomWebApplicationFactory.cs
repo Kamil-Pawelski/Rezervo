@@ -52,7 +52,7 @@ public class CustomWebApplicationFactory<TProgram>
             using IServiceScope scope = services.BuildServiceProvider().CreateScope();
             ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             db.Database.EnsureDeleted();
-            db.Database.Migrate();
+            db.Database.EnsureCreated();
             IPasswordHasher passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
             SeedData.SeedUserTestData(db, passwordHasher);

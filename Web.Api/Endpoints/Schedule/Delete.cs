@@ -1,7 +1,6 @@
 ﻿using Application.Schedules.Delete;
 using Domain.Common;
 using Domain.Users;
-using Infrastructure.Database.Migrations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

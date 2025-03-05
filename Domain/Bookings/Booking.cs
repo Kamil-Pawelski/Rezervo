@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Users;
 using Domain.Schedules;
+using Domain.Slots;
 
 namespace Domain.Bookings;
 public sealed class Booking
@@ -11,10 +12,10 @@ public sealed class Booking
     [Required]
     public Guid UserId { get; set; }
     [Required]
-    public Guid ScheduleId { get; set; }
+    public Guid SlotId { get; set; }
     [Required] 
     public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
 
-    public User User { get; set; }
-    public Schedule Schedule { get; set; }
+    public User? User { get; set; }
+    public Slot? Slot { get; set; }
 }

@@ -12,6 +12,13 @@ public static class SeedData
     public static readonly string TestLastName = "Test";
     public static readonly string TestPassword = "Password123!";
 
+    public static readonly Guid TestUserId2 = Guid.NewGuid();
+    public static readonly string TestUserEmail2 = "EndpointTest2@example.com";
+    public static readonly string TestUsername2 = "EndpointTest2";
+    public static readonly string TestFirstName2 = "Endpoint2";
+    public static readonly string TestLastName2 = "Test2";
+    public static readonly string TestPassword2 = "Password123!";
+
     public static readonly Guid TestAdminId = Guid.NewGuid();
     public static readonly string TestAdminEmail = "AdminTest@example.com";
     public static readonly string TestAdminUsername = "AdminTest";
@@ -19,10 +26,10 @@ public static class SeedData
     public static readonly string TestAdminLastName = "User";
     public static readonly string TestAdminPassword = "Admin123!";
 
-    public static readonly Guid TestRoleId = Guid.NewGuid();
+    public static readonly Guid TestRoleId = new Guid("7A4A1573-AA6E-4504-885E-BBB3A04872F5");
     public static readonly string TestRoleName = "Specialist";
 
-    public static readonly Guid TestAdminRoleId = Guid.NewGuid();
+    public static readonly Guid TestAdminRoleId = new Guid("DC6C3733-C8B7-41FA-BFA0-B77EB710F9C3");
     public static readonly string TestAdminRoleName = "Admin";
 
     public static readonly Guid TestSpecializationId = Guid.NewGuid();
@@ -50,6 +57,16 @@ public static class SeedData
             PasswordHash = passwordHasher.Hash(TestPassword)
         };
 
+        User user2 = new()
+        {
+            Id = TestUserId2,
+            Email = TestUserEmail2,
+            Username = TestUsername2,
+            FirstName = TestFirstName2,
+            LastName = TestLastName2,
+            PasswordHash = passwordHasher.Hash(TestPassword)
+        };
+
         User admin = new()
         {
             Id = TestAdminId,
@@ -60,20 +77,7 @@ public static class SeedData
             PasswordHash = passwordHasher.Hash(TestAdminPassword)
         };
 
-        Role specialistRole = new()
-        {
-            Id = TestRoleId,
-            Name = TestRoleName
-        };
-
-        Role adminRole = new()
-        {
-            Id = TestAdminRoleId,
-            Name = TestAdminRoleName
-        };
-
-        dbContext.Users.AddRange(user, admin);
-        dbContext.Roles.AddRange(specialistRole, adminRole);
+        dbContext.Users.AddRange(user, admin, user2);
         dbContext.SaveChanges();
 
         UserRole userRole = new()
@@ -115,7 +119,7 @@ public static class SeedData
         var specialistToDelete = new Specialist()
         {
             Id = TestSpecialistToDeleteId,
-            UserId = userId,
+            UserId = TestAdminId,
             SpecializationId = TestSpecializationId,
             Description = TestSpecialistToDeleteDescription,
             PhoneNumber = TestSpecialistToDeletePhoneNumber,

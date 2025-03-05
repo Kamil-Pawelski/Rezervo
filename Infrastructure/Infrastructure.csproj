@@ -8,6 +8,7 @@
   <ItemGroup>
     <Folder Include="Authorization\" />
     <Folder Include="Bookings\" />
+    <Folder Include="Database\Migrations\" />
     <Folder Include="Schedules\" />
     <Folder Include="Specialists\" />
     <Folder Include="Users\" />

@@ -57,7 +57,7 @@ public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program
     public async Task CreateSpecialistsEndpoint_ShouldReturnOk()
     {
         var command = new CreateSpecialistCommand(
-            SeedData.TestUserId,
+            SeedData.TestUserId2,
             SeedData.TestSpecializationName,
             "123456789",
             "Test Description",

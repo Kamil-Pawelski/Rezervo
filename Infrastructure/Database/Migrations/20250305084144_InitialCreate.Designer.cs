@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250226111036_Roles")]
-    partial class Roles
+    [Migration("20250305084144_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,10 +31,13 @@ namespace Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ScheduleId")
+                    b.Property<Guid?>("ScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SlotId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
@@ -42,7 +45,9 @@ namespace Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ScheduleId")
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("SlotId")
                         .IsUnique();
 
                     b.HasIndex("UserId");
@@ -56,17 +61,17 @@ namespace Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<Guid>("SpecialistId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -75,11 +80,37 @@ namespace Infrastructure.Database.Migrations
                     b.ToTable("Schedules");
                 });
 
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("Slots");
+                });
+
             modelBuilder.Entity("Domain.Specialists.Specialist", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -122,6 +153,43 @@ namespace Infrastructure.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Specializations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a3f5d1b2-6c3e-4b99-8e1a-9f6d4c7b2e3f"),
+                            Name = "Plumber"
+                        },
+                        new
+                        {
+                            Id = new Guid("b7e2c4d9-1a5f-4c88-97e3-d6a9b5f4c1e8"),
+                            Name = "Hairdresser"
+                        },
+                        new
+                        {
+                            Id = new Guid("c1d4f5e6-3b7a-4c99-8e2a-5d9b6f4c7a3e"),
+                            Name = "Electrician"
+                        },
+                        new
+                        {
+                            Id = new Guid("d6f2b3c4-5e7a-4c99-8d1a-9b4f7e6c5a3d"),
+                            Name = "Carpenter"
+                        },
+                        new
+                        {
+                            Id = new Guid("e1a3d5f7-6c4b-4e99-8d2a-9f5c7b2a3d6e"),
+                            Name = "Mechanic"
+                        },
+                        new
+                        {
+                            Id = new Guid("f5c7a3b2-6d4e-4e99-8d1a-9b6f2c4d7a3e"),
+                            Name = "Painter"
+                        },
+                        new
+                        {
+                            Id = new Guid("9b6f2c4d-7a3e-4e99-8d1a-5c7a3b2d6f4e"),
+                            Name = "Masseur"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Users.Role", b =>
@@ -145,17 +213,17 @@ namespace Infrastructure.Database.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bb8deb6a-f586-461d-8dbb-ad0fbe2a05bc"),
+                            Id = new Guid("dc6c3733-c8b7-41fa-bfa0-b77eb710f9c3"),
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("cc4c1f40-f6a1-4ba2-9029-3476f92b6438"),
+                            Id = new Guid("7a4a1573-aa6e-4504-885e-bbb3a04872f5"),
                             Name = "Specialist"
                         },
                         new
                         {
-                            Id = new Guid("7b8c76e5-636f-4ebd-9254-b3845539409c"),
+                            Id = new Guid("dd514642-f330-4950-ab3d-a3b454de9fc9"),
                             Name = "Client"
                         });
                 });
@@ -219,19 +287,23 @@ namespace Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
                 {
-                    b.HasOne("Domain.Schedules.Schedule", "Schedule")
+                    b.HasOne("Domain.Schedules.Schedule", null)
                         .WithMany("Bookings")
-                        .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ScheduleId");
+
+                    b.HasOne("Domain.Slots.Slot", "Slot")
+                        .WithMany("Bookings")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Users.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Schedule");
+                    b.Navigation("Slot");
 
                     b.Navigation("User");
                 });
@@ -241,10 +313,21 @@ namespace Infrastructure.Database.Migrations
                     b.HasOne("Domain.Specialists.Specialist", "Specialist")
                         .WithMany("Schedules")
                         .HasForeignKey("SpecialistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Specialist");
+                });
+
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
+                {
+                    b.HasOne("Domain.Schedules.Schedule", "Schedule")
+                        .WithMany("Slots")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("Domain.Specialists.Specialist", b =>
@@ -252,13 +335,13 @@ namespace Infrastructure.Database.Migrations
                     b.HasOne("Domain.Specialists.Specialization", "Specialization")
                         .WithMany("Specialists")
                         .HasForeignKey("SpecializationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Users.User", "User")
                         .WithMany("Specialists")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Specialization");
@@ -286,6 +369,13 @@ namespace Infrastructure.Database.Migrations
                 });
 
             modelBuilder.Entity("Domain.Schedules.Schedule", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Slots");
+                });
+
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
                 {
                     b.Navigation("Bookings");
                 });

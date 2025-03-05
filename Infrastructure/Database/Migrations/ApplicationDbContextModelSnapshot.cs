@@ -31,7 +31,10 @@ namespace Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ScheduleId")
+                    b.Property<Guid?>("ScheduleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SlotId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
@@ -39,7 +42,9 @@ namespace Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ScheduleId")
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("SlotId")
                         .IsUnique();
 
                     b.HasIndex("UserId");
@@ -72,7 +77,7 @@ namespace Infrastructure.Database.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("Domain.Schedules.Slot", b =>
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -279,19 +284,23 @@ namespace Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Domain.Bookings.Booking", b =>
                 {
-                    b.HasOne("Domain.Schedules.Schedule", "Schedule")
+                    b.HasOne("Domain.Schedules.Schedule", null)
                         .WithMany("Bookings")
-                        .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ScheduleId");
+
+                    b.HasOne("Domain.Slots.Slot", "Slot")
+                        .WithMany("Bookings")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Users.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Schedule");
+                    b.Navigation("Slot");
 
                     b.Navigation("User");
                 });
@@ -301,18 +310,18 @@ namespace Infrastructure.Database.Migrations
                     b.HasOne("Domain.Specialists.Specialist", "Specialist")
                         .WithMany("Schedules")
                         .HasForeignKey("SpecialistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Specialist");
                 });
 
-            modelBuilder.Entity("Domain.Schedules.Slot", b =>
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
                 {
                     b.HasOne("Domain.Schedules.Schedule", "Schedule")
                         .WithMany("Slots")
                         .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Schedule");
@@ -323,13 +332,13 @@ namespace Infrastructure.Database.Migrations
                     b.HasOne("Domain.Specialists.Specialization", "Specialization")
                         .WithMany("Specialists")
                         .HasForeignKey("SpecializationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Users.User", "User")
                         .WithMany("Specialists")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Specialization");
@@ -361,6 +370,11 @@ namespace Infrastructure.Database.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Slots");
+                });
+
+            modelBuilder.Entity("Domain.Slots.Slot", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Domain.Specialists.Specialist", b =>

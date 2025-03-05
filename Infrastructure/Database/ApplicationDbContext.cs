@@ -48,8 +48,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
             entity.HasOne(userRole => userRole.User)
                 .WithMany(user => user.UserRoles)
-                .HasForeignKey(userRole => userRole.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(userRole => userRole.UserId);
 
             entity.HasOne(userRole => userRole.Role)
                 .WithMany(role => role.UserRoles)
@@ -67,12 +66,14 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
             entity.HasOne(specialist => specialist.Specialization)
                 .WithMany(specialization => specialization.Specialists)
-                .HasForeignKey(specialist => specialist.SpecializationId);
+                .HasForeignKey(specialist => specialist.SpecializationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
 
             entity.HasOne(specialist => specialist.User)
                 .WithMany(user => user.Specialists)
                 .HasForeignKey(specialist => specialist.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Specialization>(entity =>
@@ -93,13 +94,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.HasOne(schedule => schedule.Specialist)
                 .WithMany(specialist => specialist.Schedules)
                 .HasForeignKey(schedule => schedule.SpecialistId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Schedule>()
                 .HasMany(s => s.Slots)
                 .WithOne(s => s.Schedule)
-                .HasForeignKey(s => s.ScheduleId) 
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(s => s.ScheduleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Slot>(entity =>
@@ -108,25 +109,31 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(slot => slot.StartTime).IsRequired();
             entity.Property(slot => slot.Status).IsRequired();
 
+            entity.HasMany(slot => slot.Bookings)
+                .WithOne(booking => booking.Slot)
+                .HasForeignKey(booking => booking.SlotId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
         
 
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(booking => booking.Id);
-            entity.HasIndex(booking => booking.ScheduleId).IsUnique();
+            entity.HasIndex(booking => booking.SlotId).IsUnique();
             entity.Property(booking => booking.UserId).IsRequired();
-            entity.Property(booking => booking.ScheduleId).IsRequired();
+            entity.Property(booking => booking.SlotId).IsRequired();
             entity.Property(booking => booking.CreatedDateTime).IsRequired();
 
             entity.HasOne(booking => booking.User)
                 .WithMany(user => user.Bookings)
                 .HasForeignKey(booking => booking.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            entity.HasOne(booking => booking.Schedule)
-                .WithMany(schedule => schedule.Bookings)
-                .HasForeignKey(booking => booking.ScheduleId);
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            entity.HasOne(booking => booking.Slot)
+                .WithMany(slot => slot.Bookings)
+                .HasForeignKey(booking => booking.SlotId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Role>()
