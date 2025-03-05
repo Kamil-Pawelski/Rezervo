@@ -2,6 +2,7 @@
 using Domain.Schedules;
 using Domain.Slots;
 using Domain.Specialists;
+using Domain.Specialization;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 

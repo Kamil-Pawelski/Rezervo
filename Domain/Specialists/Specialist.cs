@@ -21,6 +21,6 @@ public sealed class Specialist
     public required string City { get; set; }
 
     public User? User { get; set; }
-    public Specialization? Specialization { get; set; }
-    public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public Specialization.Specialization? Specialization { get; set; }
+    public ICollection<Schedule> Schedules { get; set; } = [];
 }

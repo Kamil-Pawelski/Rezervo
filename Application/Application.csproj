@@ -3,10 +3,6 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Bookings\Delete\" />
-    <Folder Include="Bookings\GetById\" />
-    <Folder Include="Bookings\Get\" />
-    <Folder Include="Bookings\Put\" />
     <Folder Include="Specialization\Create\" />
     <Folder Include="Specialization\Delete\" />
     <Folder Include="Specialization\Get\" />

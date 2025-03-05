@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Bookings\" />
+    <Folder Include="Slots\" />
     <Folder Include="Schedule\" />
   </ItemGroup>
 

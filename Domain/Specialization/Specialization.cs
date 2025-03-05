@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Specialists;
 
-namespace Domain.Specialists;
+namespace Domain.Specialization;
 public sealed class Specialization
 {
     [Key]

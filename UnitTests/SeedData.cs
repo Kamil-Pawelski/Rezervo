@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Authentication;
 using Domain.Specialists;
+using Domain.Specialization;
 using Domain.Users;
 using Infrastructure.Database;
 

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Users;
-using Domain.Schedules;
 using Domain.Slots;
 
 namespace Domain.Bookings;
