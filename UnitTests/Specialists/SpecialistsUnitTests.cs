@@ -8,7 +8,7 @@ using Application.Specialists.GetBySpecialization;
 using Application.Specialists.Put;
 using Domain.Common;
 using Domain.Specialists;
-using Domain.Specialization;
+using Domain.Specializations;
 using Domain.Users;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

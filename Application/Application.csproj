@@ -3,11 +3,6 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Specialization\Create\" />
-    <Folder Include="Specialization\Delete\" />
-    <Folder Include="Specialization\Get\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>

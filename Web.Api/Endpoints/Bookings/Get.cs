@@ -1,4 +1,5 @@
-﻿using Application.Bookings.Get;
+﻿using Application.Bookings;
+using Application.Bookings.Get;
 using Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

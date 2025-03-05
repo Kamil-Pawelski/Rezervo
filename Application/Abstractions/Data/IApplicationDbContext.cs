@@ -2,8 +2,8 @@
 using Domain.Schedules;
 using Domain.Slots;
 using Domain.Specialists;
-using Domain.Specialization;
 using Domain.Users;
+using Domain.Specializations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Abstractions.Data;

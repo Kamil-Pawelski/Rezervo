@@ -1,19 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Domain.Specialists;
-
-namespace Domain.Specialization;
-public sealed class Specialization
-{
-    [Key]
-    [Required]
-    public Guid Id { get; set; }
-    [Required]
-    [MaxLength(32)]
-    public required string Name { get; set; }
-
-    public ICollection<Specialist> Specialists { get; set; } = new List<Specialist>();
-}
-
+﻿namespace Domain.Specializations;
 
 public static class SpecializationNames
 {

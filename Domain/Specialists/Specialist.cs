@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Schedules;
 using Domain.Users;
+using Domain.Specializations;
 
 namespace Domain.Specialists;
 public sealed class Specialist
@@ -21,6 +22,6 @@ public sealed class Specialist
     public required string City { get; set; }
 
     public User? User { get; set; }
-    public Specialization.Specialization? Specialization { get; set; }
+    public Specialization? Specialization { get; set; }
     public ICollection<Schedule> Schedules { get; set; } = [];
 }
