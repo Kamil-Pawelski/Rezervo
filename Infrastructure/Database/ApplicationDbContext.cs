@@ -100,7 +100,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 .HasMany(s => s.Slots)
                 .WithOne(s => s.Schedule)
                 .HasForeignKey(s => s.ScheduleId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Slot>(entity =>
