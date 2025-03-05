@@ -3,4 +3,4 @@ using Domain.Specializations;
 
 namespace Application.Specializations.Get;
 
-public sealed record  GetSpecializationsQuery() : IQuery<List<SpecializationResponse>>;
+public sealed record GetSpecializationsQuery() : IQuery<List<SpecializationResponse>>;

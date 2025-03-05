@@ -11,7 +11,7 @@ namespace Web.Api.Endpoints.Specializations;
 public sealed class Create : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app) => 
-    app.MapPost("/specializations", [Authorize(Roles = RolesNames.Admin)] async ([FromBody] CreateSpecializationCommand command, ISender sender, CancellationToken cancellationToken) =>
+    app.MapPost("specializations/", [Authorize(Roles = RolesNames.Admin)] async ([FromBody] CreateSpecializationCommand command, ISender sender, CancellationToken cancellationToken) =>
     {
         Result<string> result = await sender.Send(command, cancellationToken);
 

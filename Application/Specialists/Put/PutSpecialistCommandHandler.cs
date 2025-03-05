@@ -31,7 +31,7 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
         }
 
         specialist.PhoneNumber = command.PhoneNumber;
-        specialist.Description = command.Descriptions;
+        specialist.Description = command.Description;
         specialist.City = command.City;
         await context.SaveChangesAsync(cancellationToken);
 

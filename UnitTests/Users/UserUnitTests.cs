@@ -10,7 +10,7 @@ using Shouldly;
 
 namespace Tests.Users;
 
-public sealed class UserUnitTests
+public sealed class UserUnitTests : IDisposable
 {
     private readonly RegisterUserCommandHandler _registerUserCommandHandler;
     private readonly LoginUserCommandHandler _loginUserCommandHandler;
@@ -180,4 +180,6 @@ public sealed class UserUnitTests
 
         result.IsSuccess.ShouldBeFalse();
     }
+
+    public void Dispose() => _context.Dispose();
 }
