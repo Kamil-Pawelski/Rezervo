@@ -1,4 +1,5 @@
-﻿using Application.Abstractions.Data;
+﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Domain.Bookings;
 using Domain.Common;
@@ -7,7 +8,7 @@ using Domain.Slots;
 
 namespace Application.Bookings.Create;
 
-public sealed class CreateBookingCommandHandler(IApplicationDbContext context) : ICommandHandler<CreateBookingCommand, string>
+public sealed class CreateBookingCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<CreateBookingCommand, string>
 {
     public async Task<Result<string>> Handle(CreateBookingCommand command, CancellationToken cancellationToken)
     {
@@ -24,7 +25,7 @@ public sealed class CreateBookingCommandHandler(IApplicationDbContext context) :
 
         await context.Bookings.AddAsync(new Booking
         {
-            UserId = command.UserId,
+            UserId = userContext.UserId,
             SlotId = command.SlotId
         }, cancellationToken);
 

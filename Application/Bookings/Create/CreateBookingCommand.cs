@@ -2,4 +2,4 @@
 
 namespace Application.Bookings.Create;
 
-public sealed record CreateBookingCommand(Guid UserId, Guid SlotId) : ICommand<string>;
+public sealed record CreateBookingCommand(Guid SlotId) : ICommand<string>;
