@@ -113,8 +113,8 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task CreateSpecialistTest_ShouldReturnOk()
     {
         var command = new CreateSpecialistCommand(
-            _existingUserId, 
-            "Test Specialization",
+            _existingUserId,
+            _existingSpecializationId,
             "Test Description",
             "123456789",
             "Warsaw"
@@ -199,7 +199,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     [Fact]
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnOk()
     {
-        var command = new GetBySpecializationSpecialitsCommand(_existingSpecializationId);
+        var command = new GetBySpecializationSpecialistsCommand(_existingSpecializationId);
         Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -208,7 +208,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     [Fact]
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnNotFound()
     {
-        var command = new GetBySpecializationSpecialitsCommand(Guid.NewGuid());
+        var command = new GetBySpecializationSpecialistsCommand(Guid.NewGuid());
         Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Type.ShouldBe(ErrorType.NotFound);

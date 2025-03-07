@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Schedules.GetById;
 
-public sealed class GetScheduleSlotsByIdQueryHandler(IApplicationDbContext context) : IQueryHandler<GetScheduleSlotsByIdQuery, List<SlotResponse>>
+public sealed class GetByIdScheduleSlotsQueryHandler(IApplicationDbContext context) : IQueryHandler<GetByIdScheduleSlotsQuery, List<SlotResponse>>
 {
-    public async Task<Result<List<SlotResponse>>> Handle(GetScheduleSlotsByIdQuery query,
+    public async Task<Result<List<SlotResponse>>> Handle(GetByIdScheduleSlotsQuery query,
         CancellationToken cancellationToken)
     {
         List<SlotResponse> result = await context.Slots.Where(slot => slot.ScheduleId == query.ScheduleId && slot.Status == Status.Available)

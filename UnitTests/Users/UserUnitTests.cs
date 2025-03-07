@@ -15,12 +15,13 @@ public sealed class UserUnitTests : IDisposable
     private readonly RegisterUserCommandHandler _registerUserCommandHandler;
     private readonly LoginUserCommandHandler _loginUserCommandHandler;
     private readonly PasswordHasher _passwordHasher;
-    private readonly TokenProvider _tokenProvider;
     private readonly ApplicationDbContext _context;
-    private readonly IConfiguration _configuration;
+
+    private Guid _existingRoleId;
+
     public UserUnitTests()
     {
-        _configuration = new ConfigurationBuilder()
+        IConfiguration configuration = new ConfigurationBuilder()
             .AddUserSecrets<UserUnitTests>()
             .Build();
 
@@ -30,10 +31,10 @@ public sealed class UserUnitTests : IDisposable
 
         _context = new ApplicationDbContext(options);
         _passwordHasher = new PasswordHasher();
-        _tokenProvider = new TokenProvider(_configuration, _context);
+        var tokenProvider = new TokenProvider(configuration, _context);
 
         _registerUserCommandHandler = new RegisterUserCommandHandler(_context, _passwordHasher);
-        _loginUserCommandHandler = new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider);
+        _loginUserCommandHandler = new LoginUserCommandHandler(_context, _passwordHasher, tokenProvider);
         SeedData();
     }
 
@@ -48,9 +49,11 @@ public sealed class UserUnitTests : IDisposable
             PasswordHash = _passwordHasher.Hash("Password123!")
         };
 
+        _existingRoleId = Guid.NewGuid();
+
         var clientRole = new Role
         {
-            Id = Guid.NewGuid(),
+            Id = _existingRoleId,
             Name = RolesNames.Client
         };
 
@@ -77,7 +80,7 @@ public sealed class UserUnitTests : IDisposable
             "First",
             "User",
             "Password123!",
-            "Client"
+            _existingRoleId
         );
 
         Result result = await _registerUserCommandHandler.Handle(command, CancellationToken.None);
@@ -95,7 +98,7 @@ public sealed class UserUnitTests : IDisposable
             "Second",
             "User",
             "Password123!",
-            "Client"
+            _existingRoleId
         );
 
         Result result = await _registerUserCommandHandler.Handle(command, CancellationToken.None);
@@ -118,7 +121,7 @@ public sealed class UserUnitTests : IDisposable
             "Third",
             "Test",
             "Password123!",
-            "Client"
+            _existingRoleId
         );
 
         Result result = await _registerUserCommandHandler.Handle(command, CancellationToken.None);
@@ -133,7 +136,7 @@ public sealed class UserUnitTests : IDisposable
             "Third",
             "Test",
             "Password123!",
-            "Client"
+            _existingRoleId
         );
      
         Result errorResult = await _registerUserCommandHandler.Handle(errorCommand, CancellationToken.None);

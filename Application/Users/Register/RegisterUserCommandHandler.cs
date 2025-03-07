@@ -34,12 +34,17 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
 
         context.Users.Add(user);
 
-        Guid roleId = (await context.Roles.FirstAsync(ur => ur.Name == command.Role, cancellationToken)).Id;
+        Role? role = await context.Roles.FirstOrDefaultAsync(ur => ur.Id == command.RoleId, cancellationToken);
+
+        if (role is null)
+        {
+            return Result.Failure(new Error("RoleNotFound", "Role with the given id does not exist", ErrorType.NotFound));
+        }
 
         var userRole = new UserRole
         {
             UserId = user.Id,
-            RoleId = roleId
+            RoleId = role.Id
         };
 
         await context.UserRoles.AddAsync(userRole, cancellationToken);

@@ -12,7 +12,7 @@ public class GetBySpecialization : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app) => 
     app.MapGet("specialists/specialization/{id}", async ([FromRoute] Guid id, ISender iSender, CancellationToken cancellationToken) =>
     {
-        Result<List<SpecialistsResponse>> result = await iSender.Send(new GetBySpecializationSpecialitsCommand(id), cancellationToken);
+        Result<List<SpecialistsResponse>> result = await iSender.Send(new GetBySpecializationSpecialistsCommand(id), cancellationToken);
 
         return result.IsSuccess ? Results.Ok(result.Value) : result.Error.MapError();
     });

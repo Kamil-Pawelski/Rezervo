@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Specialists.GetBySpecialization;
 
-public sealed class GetBySpecializationSpecialistsCommandHandler(IApplicationDbContext context) : ICommandHandler<GetBySpecializationSpecialitsCommand, List<SpecialistsResponse>> 
+public sealed class GetBySpecializationSpecialistsCommandHandler(IApplicationDbContext context) : ICommandHandler<GetBySpecializationSpecialistsCommand, List<SpecialistsResponse>> 
 {
-    public async Task<Result<List<SpecialistsResponse>>> Handle(GetBySpecializationSpecialitsCommand command,
+    public async Task<Result<List<SpecialistsResponse>>> Handle(GetBySpecializationSpecialistsCommand command,
         CancellationToken cancellationToken)
     {
         List<SpecialistsResponse> result = await context.Specialists

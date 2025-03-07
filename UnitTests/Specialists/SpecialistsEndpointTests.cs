@@ -58,7 +58,7 @@ public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program
     {
         var command = new CreateSpecialistCommand(
             SeedData.TestUserId2,
-            SeedData.TestSpecializationName,
+            SeedData.TestSpecializationId,
             "123456789",
             "Test Description",
             "Warsaw"

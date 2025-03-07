@@ -2,6 +2,8 @@
 using Application.Abstractions.Messaging;
 using Domain.Common;
 using Domain.Specialists;
+using Domain.Specializations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Specialists.Create;
 
@@ -9,15 +11,18 @@ public sealed class CreateSpecialistCommandHandler(IApplicationDbContext context
 {
     public async Task<Result> Handle(CreateSpecialistCommand command, CancellationToken cancellationToken)
     {
-        Guid specializationId = context.Specializations
-            .Where(s => s.Name == command.SpecializationName)
-            .Select(s => s.Id)
-            .FirstOrDefault();
+        Specialization? specialization = await context.Specializations
+            .FirstOrDefaultAsync(specialization => specialization.Id == command.SpecializationId, cancellationToken);
 
+        if (specialization is null)
+        {
+            return Result.Failure(new Error("NotFoundSpecialization", "Specialization with the given name does not exist", ErrorType.NotFound));
+        }
+        
         var specialist = new Specialist
         {
             UserId = command.UserId,
-            SpecializationId = specializationId,
+            SpecializationId = specialization.Id,
             PhoneNumber = command.PhoneNumber,
             Description = command.Description,
             City = command.City

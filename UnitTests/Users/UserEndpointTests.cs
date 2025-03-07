@@ -22,7 +22,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "Endpoint",
             "Test",
             "Password123!",
-            "Client"
+            SeedData.TestRoleId
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
@@ -39,7 +39,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "Endpoint",
             "Second",
             "Password123!",
-            "Client"
+            SeedData.TestRoleId
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
@@ -58,7 +58,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "Endpoint",
             "Third",
             "Password123!",
-            "Client"
+            SeedData.TestRoleId
         );
 
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
