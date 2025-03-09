@@ -9,9 +9,7 @@ using Domain.Specializations;
 using Domain.Users;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Shouldly;
-using Tests.Users;
 using static Tests.Specialists.SpecialistsUnitTests;
 
 namespace Tests.Slots;
@@ -30,10 +28,6 @@ public sealed class SlotUnitTests : IDisposable
 
     public SlotUnitTests()
     {
-        new ConfigurationBuilder()
-            .AddUserSecrets<UserUnitTests>()
-            .Build();
-
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase("TestDatabase")
             .Options;
@@ -42,7 +36,6 @@ public sealed class SlotUnitTests : IDisposable
         _userContext = new TestUserContext();
 
         SeedData();
-
     }
 
     private void SeedData()
@@ -345,5 +338,4 @@ public sealed class SlotUnitTests : IDisposable
 
 
     public void Dispose() => _context.Dispose();
-
 }

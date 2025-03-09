@@ -25,8 +25,8 @@ public sealed class GetScheduleQueryHandler(IApplicationDbContext context) : IQu
 
         if (result.Count == 0)
         {
-            return Result.Failure<List<ScheduleDateResponse>>(new Error("ScheduleNotFound",
-                "There are no slots for the specialist.", ErrorType.NotFound));
+            return Result.Failure<List<ScheduleDateResponse>>(new Error("NotFoundSchedule",
+                "The specialist has no vacancies or does not have a schedule.", ErrorType.NotFound));
         }
 
         return Result.Success(result);

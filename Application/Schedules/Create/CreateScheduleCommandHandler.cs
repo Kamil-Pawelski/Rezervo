@@ -12,7 +12,7 @@ public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) 
         if (command.EndTime < command.StartTime)
         {
             return Result.Failure<string>(
-                new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Validation));
+                new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Conflict));
         }
 
         var schedule = new Schedule

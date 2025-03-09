@@ -37,7 +37,7 @@ public sealed class SpecialistsUnitTests : IDisposable
 
         SeedData();
     }
-
+    // TODO - Creating one common method for all tests
     private void SeedData()
     {
         _existingUserId = Guid.NewGuid();
@@ -215,9 +215,4 @@ public sealed class SpecialistsUnitTests : IDisposable
     }
 
     public void Dispose() => _context.Dispose();
-
-    public class TestUserContext() : IUserContext
-    {
-        public Guid UserId { get; set; }
-    }
 }
