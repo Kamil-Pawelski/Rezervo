@@ -28,10 +28,10 @@ public sealed class PutSlotCommandHandler(IApplicationDbContext context, IUserCo
                 ErrorType.Unauthorized));
         }
 
-        if(command.StartTime < slot.Schedule.StartTime || command.StartTime > slot.Schedule.EndTime)
+        if(command.StartTime < slot.Schedule.StartTime || command.StartTime > slot.Schedule.EndTime) // TODO move to validation
         {
             return Result.Failure<string>(new Error("InvalidTimeRange", "Slot time must be within the schedule time range",
-                ErrorType.Validation));
+                ErrorType.Conflict));
         }
 
         slot.StartTime = command.StartTime;

@@ -2,7 +2,6 @@
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Domain.Common;
-using Domain.Schedules;
 using Domain.Slots;
 using Microsoft.EntityFrameworkCore;
 

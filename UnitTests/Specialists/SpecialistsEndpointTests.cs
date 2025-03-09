@@ -7,7 +7,6 @@ using Application.Specialists;
 using Application.Specialists.Create;
 using Application.Specialists.Put;
 using Application.Users.Login;
-using Infrastructure.Authentication;
 using Shouldly;
 using Web.Api;
 
@@ -29,7 +28,7 @@ public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program
 
     private async Task<string> GenerateAdminToken()
     {
-        var command = new LoginUserCommand(SeedData.TestAdminUsername, SeedData.TestAdminPassword);
+        var command = new LoginUserCommand(SeedData.TestAdminUsername, SeedData.TestPassword);
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
