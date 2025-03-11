@@ -19,7 +19,9 @@ public sealed class PutScheduleCommandHandler(IApplicationDbContext context, IUs
                 new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Validation));
         }
 
-        Schedule? result = await context.Schedules.FindAsync([command.Id], cancellationToken);
+        Schedule? result = await context.Schedules
+            .Include(schedule => schedule.Specialist)
+            .FirstOrDefaultAsync(schedule => schedule.Id == command.Id, cancellationToken);
 
         if (result is null)
         {

@@ -2,18 +2,18 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Application.Specialists;
 using Application.Specialists.Create;
 using Application.Specialists.Put;
 using Application.Users.Login;
 using Shouldly;
+using Tests.Response;
 using Web.Api;
 
 namespace Tests.Specialists;
 
 [Collection("Factory")]
-public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program> factory)
+public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory<Program> factory)
 {
     private readonly HttpClient _client = factory.CreateClient();
 
@@ -33,12 +33,6 @@ public sealed class SpecialistsEndpointTests(CustomWebApplicationFactory<Program
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
         return json!.Token;
-    }
-
-    private class TokenResponse
-    {
-        [JsonPropertyName("token")]
-        public string Token { get; init; } = string.Empty;
     }
 
     [Fact]

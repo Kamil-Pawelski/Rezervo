@@ -9,6 +9,7 @@ using Application.Users.Login;
 using Domain.Slots;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
+using Tests.Response;
 using Web.Api;
 
 namespace Tests.Slots;

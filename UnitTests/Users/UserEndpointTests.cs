@@ -5,6 +5,7 @@ using Application.Users.Register;
 using Shouldly;
 using Web.Api;
 using System.Net;
+using Tests.Response;
 
 namespace Tests.Users;
 

@@ -6,7 +6,6 @@ using Application.Schedules.GetById;
 using Application.Schedules.Put;
 using Domain.Common;
 using Domain.Schedules;
-using Domain.Slots;
 using Domain.Specialists;
 using Domain.Specializations;
 using Domain.Users;
@@ -152,7 +151,7 @@ public sealed class ScheduleUnitTests : IDisposable
             new TimeOnly(8, 0),
             new TimeOnly(16, 0),
             30,
-            new DateOnly(2025, 3, 10)
+            DateOnly.FromDateTime(DateTime.Now.AddDays(2))
         );
 
         Result<string> result = await new CreateScheduleCommandHandler(_context).Handle(command, CancellationToken.None);

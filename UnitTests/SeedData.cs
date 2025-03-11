@@ -6,6 +6,8 @@ using Domain.Specializations;
 using Domain.Users;
 using Infrastructure.Database;
 
+namespace Tests;
+
 public static class SeedData
 {
     public static readonly Guid TestUserId = Guid.NewGuid();
@@ -24,9 +26,9 @@ public static class SeedData
     public static readonly string TestAdminUsername = "AdminTest";
 
 
-    public static readonly Guid TestRoleId = new Guid("7A4A1573-AA6E-4504-885E-BBB3A04872F5");
+    public static readonly Guid TestRoleId = new("7A4A1573-AA6E-4504-885E-BBB3A04872F5");
 
-    public static readonly Guid TestAdminRoleId = new Guid("DC6C3733-C8B7-41FA-BFA0-B77EB710F9C3");
+    public static readonly Guid TestAdminRoleId = new("DC6C3733-C8B7-41FA-BFA0-B77EB710F9C3");
 
     public static readonly Guid TestSpecializationId = Guid.NewGuid();
     public static readonly string TestSpecializationName = "Test Specialization";
@@ -39,9 +41,10 @@ public static class SeedData
     public static readonly Guid TestSpecialistToDeleteId = Guid.NewGuid();
 
     public static readonly Guid TestScheduleId = Guid.NewGuid();
+    public static readonly Guid TestScheduleToDeleteId = Guid.NewGuid();
 
     public static readonly Guid TestSlotId = Guid.NewGuid();
-    public static readonly TimeOnly TestSlotStartTime = new(8, 0, 0);
+    public static readonly TimeOnly TestSlotStartTime = new(9, 0, 0);
 
     public static readonly Guid TestSlotToDeleteId = Guid.NewGuid();
     public static readonly TimeOnly TestSlotToDeleteStartTime = new(12, 0, 0);
@@ -143,11 +146,21 @@ public static class SeedData
             Date = DateOnly.FromDateTime(DateTime.Now)
         };
 
+        var scheduleToDelete = new Schedule()
+        {
+            Id = TestScheduleToDeleteId,
+            SpecialistId = TestSpecialistId,
+            StartTime = new TimeOnly(8, 0, 0),
+            EndTime = new TimeOnly(16, 0, 0),
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+        };
+
         var slot = new Slot
         {
             Id = TestSlotId,
             ScheduleId = TestScheduleId,
             StartTime = TestSlotStartTime,
+            Status = Status.Available
         };
 
         var slotToDelete = new Slot
@@ -155,9 +168,10 @@ public static class SeedData
             Id = TestSlotToDeleteId,
             ScheduleId = TestScheduleId,
             StartTime = TestSlotToDeleteStartTime,
+            Status = Status.Available
         };
 
-        dbContext.Schedules.Add(schedule);
+        dbContext.Schedules.AddRange(schedule, scheduleToDelete);
         dbContext.Slots.AddRange(slot, slotToDelete);
         dbContext.SaveChanges();
     }
