@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Authentication;
+using Domain.Bookings;
 using Domain.Schedules;
 using Domain.Slots;
 using Domain.Specialists;
@@ -48,6 +49,11 @@ public static class SeedData
 
     public static readonly Guid TestSlotToDeleteId = Guid.NewGuid();
     public static readonly TimeOnly TestSlotToDeleteStartTime = new(12, 0, 0);
+
+    public static readonly Guid TestBookingId = Guid.NewGuid();
+    public static readonly Guid TestBookingToDeleteId = Guid.NewGuid();
+    public static readonly Guid TestSlotForBookingId = Guid.NewGuid();
+    public static readonly Guid TestSlotForBooking2Id = Guid.NewGuid();
 
     public static void SeedUserTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
     {
@@ -150,8 +156,8 @@ public static class SeedData
         {
             Id = TestScheduleToDeleteId,
             SpecialistId = TestSpecialistId,
-            StartTime = new TimeOnly(8, 0, 0),
-            EndTime = new TimeOnly(16, 0, 0),
+            StartTime = new TimeOnly(8, 0),
+            EndTime = new TimeOnly(16, 0),
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
         };
 
@@ -160,6 +166,22 @@ public static class SeedData
             Id = TestSlotId,
             ScheduleId = TestScheduleId,
             StartTime = TestSlotStartTime,
+            Status = Status.Available
+        };
+
+        var slotForBooking = new Slot
+        {
+            Id = TestSlotForBookingId,
+            ScheduleId = TestScheduleId,
+            StartTime = new TimeOnly(11, 20),
+            Status = Status.Available
+        };
+
+        var slotForBooking2 = new Slot
+        {
+            Id = TestSlotForBooking2Id,
+            ScheduleId = TestScheduleId,
+            StartTime = new TimeOnly(11, 40),
             Status = Status.Available
         };
 
@@ -172,7 +194,27 @@ public static class SeedData
         };
 
         dbContext.Schedules.AddRange(schedule, scheduleToDelete);
-        dbContext.Slots.AddRange(slot, slotToDelete);
+        dbContext.Slots.AddRange(slot, slotForBooking, slotForBooking2, slotToDelete);
+        dbContext.SaveChanges();
+    }
+
+    public static void SeedBookingData(ApplicationDbContext dbContext)
+    {
+        var booking = new Booking
+        {
+            Id = TestBookingId,
+            SlotId = TestSlotForBooking2Id,
+            UserId = TestUserId,
+        };
+
+        var bookingToDelete = new Booking
+        {
+            Id = TestBookingToDeleteId,
+            SlotId = TestSlotId,
+            UserId = TestUserId,
+        };
+
+        dbContext.Bookings.AddRange(booking, bookingToDelete);
         dbContext.SaveChanges();
     }
 }

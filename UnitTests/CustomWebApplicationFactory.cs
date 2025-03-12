@@ -59,6 +59,7 @@ public class CustomWebApplicationFactory<TProgram>
             SeedData.SeedUserTestData(db, passwordHasher);
             SeedData.SeedSpecialistTestData(db);
             SeedData.SeedScheduleAndSlotsTestData(db);
+            SeedData.SeedBookingData(db);
         });
 
         builder.UseEnvironment("Test");

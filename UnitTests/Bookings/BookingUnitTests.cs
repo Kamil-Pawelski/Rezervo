@@ -10,7 +10,6 @@ using Domain.Slots;
 using Domain.Specialists;
 using Domain.Specializations;
 using Domain.Users;
-using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
