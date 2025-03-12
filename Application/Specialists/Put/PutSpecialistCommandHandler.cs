@@ -1,7 +1,6 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Mapper;
 using Domain.Common;
 using Domain.Specialists;
 using Microsoft.EntityFrameworkCore;
@@ -12,30 +11,37 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
 {
     public async Task<Result<SpecialistsResponse>> Handle(PutSpecialistCommand command, CancellationToken cancellationToken)
     {
-        Guid loggedUserId = userContext.UserId;
-
-        if (loggedUserId != command.UserId)
+        if (userContext.UserId != command.UserId)
         {
-            return Result.Failure<SpecialistsResponse>(new Error("WrongUser",
-                "You are not allowed to edit another user's data.", ErrorType.Forbidden));
+            return Result.Failure<SpecialistsResponse>(CommonErrors.Unauthorized);
         }
 
         Specialist? specialist = await context.Specialists
-            .Include(s => s.Specialization)
             .Include(s => s.User)
-            .FirstOrDefaultAsync(specialist => specialist.Id == command.Id, cancellationToken);
+            .Include(s => s.Specialization)
+            .FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
 
         if (specialist is null)
         {
-            return Result.Failure<SpecialistsResponse>(new Error("SpecialistNotFound", "Specialist with the given id does not exist", ErrorType.NotFound));
+            return Result.Failure<SpecialistsResponse>(SpecialistErrors.NotFoundSpecialist);
         }
 
         specialist.PhoneNumber = command.PhoneNumber;
         specialist.Description = command.Description;
         specialist.City = command.City;
+
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(specialist.MapToSpecialistResponse());
+        var specialistResponse = new SpecialistsResponse
+        {
+            Id = specialist.Id,
+            User = new UserDto(specialist.User!.Id, specialist.User.FirstName, specialist.User.LastName),
+            Specialization = new SpecializationDto(specialist.Specialization!.Id, specialist.Specialization.Name),
+            PhoneNumber = specialist.PhoneNumber,
+            Description = specialist.Description,
+            City = specialist.City
+        };
 
+        return Result.Success(specialistResponse);
     }
 }

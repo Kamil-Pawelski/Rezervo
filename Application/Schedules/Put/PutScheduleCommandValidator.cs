@@ -6,9 +6,10 @@ internal sealed class PutScheduleCommandValidator : AbstractValidator<PutSchedul
 {
     public PutScheduleCommandValidator()
     {
-        RuleFor(command => command.EndTime)
-            .NotEmpty();
         RuleFor(command => command.StartTime)
             .NotEmpty();
+        RuleFor(command => command.EndTime)
+            .NotEmpty()
+            .GreaterThan(command => command.StartTime);
     }
 }

@@ -12,7 +12,7 @@ public sealed class DeleteSpecializationCommandHandler(IApplicationDbContext con
         Specialization? specialization = await context.Specializations.FindAsync(command.Id, cancellationToken);
         if (specialization is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSpecialization", "Specialization with the given id does not exist", ErrorType.NotFound));
+            return Result.Failure<string>(SpecializationErrors.NotFoundSpecialziation);
         }
         context.Specializations.Remove(specialization);
         await context.SaveChangesAsync(cancellationToken);

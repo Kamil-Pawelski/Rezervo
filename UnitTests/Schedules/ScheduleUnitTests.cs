@@ -157,26 +157,9 @@ public sealed class ScheduleUnitTests : IDisposable
         Result<string> result = await new CreateScheduleCommandHandler(_context).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe($"Created schedule with 16 slots");
+        result.Value.ShouldBe($"Created schedule with 16 slots.");
     }
 
-    [Fact]
-    public async Task CreateSchedule_ShouldReturnError_InvalidTimeRange()
-    {
-        var command = new CreateScheduleCommand(
-            _specialistId,
-            new TimeOnly(16, 0),
-            new TimeOnly(8, 0),
-            30,
-            new DateOnly(2025, 3, 10)
-        );
-
-        Result<string> result = await new CreateScheduleCommandHandler(_context).Handle(command, CancellationToken.None);
-
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidTimeRange");
-        result.Error.Description.ShouldBe("EndTime must be later than StartTime.");
-    }
 
     [Fact]
     public async Task DeleteSchedule_ShouldReturnSuccess()
@@ -187,7 +170,7 @@ public sealed class ScheduleUnitTests : IDisposable
         Result<string> result = await new DeleteScheduleCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe("Schedule deleted successfully");
+        result.Value.ShouldBe("Schedule deleted successfully.");
     }
 
 
@@ -201,7 +184,7 @@ public sealed class ScheduleUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSchedule");
-        result.Error.Description.ShouldBe("Schedule with the given id does not exist");
+        result.Error.Description.ShouldBe("Schedule with the given id does not exist.");
     }
 
 
@@ -215,7 +198,7 @@ public sealed class ScheduleUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not authorized to delete this schedule");
+        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
     }
 
     [Fact]
@@ -237,8 +220,8 @@ public sealed class ScheduleUnitTests : IDisposable
         Result<List<ScheduleDateResponse>> result = await new GetScheduleQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundSchedule");
-        result.Error.Description.ShouldBe("The specialist has no vacancies or does not have a schedule.");
+        result.Error.Code.ShouldBe("NoAvailableSlots");
+        result.Error.Description.ShouldBe("The specialist has no available slots or does not have a schedule.");
     }
 
     [Fact]
@@ -275,24 +258,7 @@ public sealed class ScheduleUnitTests : IDisposable
         Result<string> result = await new PutScheduleCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe($"Schedule updated successfully. New work time {command.StartTime}-{command.EndTime}");
-    }
-
-    [Fact]
-    public async Task PutSchedule_ShouldReturnError_InvalidTimeRange()
-    {
-        var command = new PutScheduleCommand(
-            _scheduleId,
-            new TimeOnly(16, 0),
-            new TimeOnly(8, 0)
-        );
-
-        _userContext.UserId = _userId;
-        Result<string> result = await new PutScheduleCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
-
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidTimeRange");
-        result.Error.Description.ShouldBe("EndTime must be later than StartTime.");
+        result.Value.ShouldBe($"Schedule updated successfully. New work time {command.StartTime}-{command.EndTime}.");
     }
 
     [Fact]
@@ -309,7 +275,7 @@ public sealed class ScheduleUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSchedule");
-        result.Error.Description.ShouldBe("Schedule with the given id does not exist");
+        result.Error.Description.ShouldBe("Schedule with the given id does not exist.");
     }
 
     [Fact]
@@ -326,7 +292,7 @@ public sealed class ScheduleUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not authorized to delete this schedule");
+        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
     }
 
 

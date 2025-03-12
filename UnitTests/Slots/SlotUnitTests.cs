@@ -125,7 +125,7 @@ public sealed class SlotUnitTests : IDisposable
         Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe("Slot created successfully");
+        result.Value.ShouldBe("Slot created successfully.");
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public sealed class SlotUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSchedule");
-        result.Error.Description.ShouldBe("Schedule with the given id does not exist");
+        result.Error.Description.ShouldBe("Schedule with the given id does not exist.");
     }
 
     [Fact]
@@ -176,41 +176,7 @@ public sealed class SlotUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not authorized to create slots for this schedule");
-    }
-
-    [Fact]
-    public async Task CreateSlot_ShouldReturnError_InvalidTimeRange_TooEarly()
-    {
-        var command = new CreateSlotCommand(
-            _scheduleId,
-            new TimeOnly(7, 30)
-        );
-
-        _userContext.UserId = _userId;
-
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
-
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidTimeRange");
-        result.Error.Description.ShouldBe("EndTime must be later than StartTime.");
-    }
-
-    [Fact]
-    public async Task CreateSlot_ShouldReturnError_InvalidTimeRange_TooLate()
-    {
-        var command = new CreateSlotCommand(
-            _scheduleId,
-            new TimeOnly(16, 30)
-        );
-
-        _userContext.UserId = _userId;
-
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
-
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidTimeRange");
-        result.Error.Description.ShouldBe("EndTime must be later than StartTime.");
+        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
     }
 
     [Fact]
@@ -242,7 +208,7 @@ public sealed class SlotUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSlot");
-        result.Error.Description.ShouldBe("Slot with the given id does not exist");
+        result.Error.Description.ShouldBe("Slot with the given id does not exist.");
     }
 
     [Fact]
@@ -257,7 +223,7 @@ public sealed class SlotUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not allowed to delete this slot");
+        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
     }
 
     [Fact]

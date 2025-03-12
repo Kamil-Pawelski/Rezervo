@@ -24,6 +24,6 @@ public class Error(string code, string description, ErrorType type)
 
     public static Error Conflict(string code, string description) =>
         new(code, description, ErrorType.Conflict);
-
-
+    public static Error Unauthorized(string code, string description) =>
+        new(code, description, ErrorType.Unauthorized);
 }

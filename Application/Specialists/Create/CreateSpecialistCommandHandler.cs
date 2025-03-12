@@ -16,7 +16,7 @@ public sealed class CreateSpecialistCommandHandler(IApplicationDbContext context
 
         if (specialization is null)
         {
-            return Result.Failure(new Error("NotFoundSpecialization", "Specialization with the given name does not exist", ErrorType.NotFound));
+            return Result.Failure(SpecializationErrors.NotFoundSpecialziation);
         }
         
         var specialist = new Specialist

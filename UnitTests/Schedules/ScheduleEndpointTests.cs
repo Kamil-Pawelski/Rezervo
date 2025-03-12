@@ -51,7 +51,7 @@ public sealed class ScheduleEndpointTests(CustomWebApplicationFactory<Program> f
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         string? result = await response.Content.ReadFromJsonAsync<string>();
-        result.ShouldBe("Created schedule with 16 slots");
+        result.ShouldBe("Created schedule with 16 slots.");
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class ScheduleEndpointTests(CustomWebApplicationFactory<Program> f
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         string? result = await response.Content.ReadFromJsonAsync<string>();
-        result.ShouldBe("Schedule deleted successfully");
+        result.ShouldBe("Schedule deleted successfully.");
     }
 
     [Fact]
@@ -119,6 +119,6 @@ public sealed class ScheduleEndpointTests(CustomWebApplicationFactory<Program> f
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         string? result = await response.Content.ReadFromJsonAsync<string>();
-        result.ShouldBe($"Schedule updated successfully. New work time {command.StartTime}-{command.EndTime}");
+        result.ShouldBe($"Schedule updated successfully. New work time {command.StartTime}-{command.EndTime}.");
     }
 }

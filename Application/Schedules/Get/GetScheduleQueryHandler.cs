@@ -13,20 +13,23 @@ public sealed class GetScheduleQueryHandler(IApplicationDbContext context) : IQu
         var today = DateOnly.FromDateTime(DateTime.Today);
 
         List<ScheduleDateResponse> result = await context.Schedules
-            .Include(schedule => schedule.Slots)
             .Where(schedule => schedule.SpecialistId == query.SpecialistId && schedule.Date >= today)
-            .Where(schedule => schedule.Slots.Any(slot => slot.Status == Status.Available))
-            .Select(schedule => new ScheduleDateResponse
+            .Select(schedule => new
             {
-                ScheduleId = schedule.Id,
-                Date = schedule.Date
+                Schedule = schedule,
+                HasAvailableSlots = schedule.Slots.Any(slot => slot.Status == Status.Available)
+            })
+            .Where(a => a.HasAvailableSlots)
+            .Select(a => new ScheduleDateResponse
+            {
+                ScheduleId = a.Schedule.Id,
+                Date = a.Schedule.Date
             })
             .ToListAsync(cancellationToken);
 
         if (result.Count == 0)
         {
-            return Result.Failure<List<ScheduleDateResponse>>(new Error("NotFoundSchedule",
-                "The specialist has no vacancies or does not have a schedule.", ErrorType.NotFound));
+            return Result.Failure<List<ScheduleDateResponse>>(ScheduleErrors.NoAvailableSlots);
         }
 
         return Result.Success(result);

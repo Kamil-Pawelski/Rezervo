@@ -181,7 +181,7 @@ public sealed class BookingUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSlot");
-        result.Error.Description.ShouldBe("Slot with the given id does not exist");
+        result.Error.Description.ShouldBe("Slot with the given id does not exist.");
     }
 
     [Fact]
@@ -220,7 +220,7 @@ public sealed class BookingUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundBooking");
-        result.Error.Description.ShouldBe("Booking with the given id does not exist");
+        result.Error.Description.ShouldBe("Booking with the given id does not exist.");
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public sealed class BookingUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not authorized to delete this booking");
+        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
     }
 
     [Fact]
@@ -259,7 +259,7 @@ public sealed class BookingUnitTests : IDisposable
         Result<string> result = await new DeleteBookingCommandHandler(_context, userContext).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundSlot");
-        result.Error.Description.ShouldBe("Slot with the given id does not exist");
+        result.Error.Description.ShouldBe("Slot with the given id does not exist.");
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public sealed class BookingUnitTests : IDisposable
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("NotFoundBookings");
-        result.Error.Description.ShouldBe("You don't have any bookings");
+        result.Error.Description.ShouldBe("You don't have any bookings.");
     }
 
     [Fact]

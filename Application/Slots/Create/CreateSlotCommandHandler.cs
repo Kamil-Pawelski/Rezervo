@@ -20,23 +20,17 @@ public sealed class CreateSlotCommandHandler(IApplicationDbContext context, IUse
 
         if (schedule is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSchedule", "Schedule with the given id does not exist", ErrorType.NotFound));
+            return Result.Failure<string>(ScheduleErrors.NotFoundSchedule);
         }
 
         if(schedule.Specialist!.UserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to create slots for this schedule", ErrorType.Unauthorized));
-        }
-
-        if (schedule.StartTime > command.StartTime || schedule.EndTime < command.StartTime) // TODO move to validation
-        {
-            return Result.Failure<string>(new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Validation));
-                
+            return Result.Failure<string>(CommonErrors.Unauthorized);
         }
 
         if (schedule.Slots.Any(slot => slot.StartTime == command.StartTime))
         {
-            return Result.Failure<string>(new Error("SlotAlreadyExist", $"A slot already exists for the time {command.StartTime}. Please choose a different time.", ErrorType.Conflict));
+            return Result.Failure<string>(SlotErrors.SlotAlreadyExist(command.StartTime));
         }
 
         var slot = new Slot
@@ -49,6 +43,6 @@ public sealed class CreateSlotCommandHandler(IApplicationDbContext context, IUse
         await context.Slots.AddAsync(slot, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("Slot created successfully");
+        return Result.Success("Slot created successfully.");
     }
 }

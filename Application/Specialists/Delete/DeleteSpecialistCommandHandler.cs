@@ -14,7 +14,7 @@ public sealed class DeleteSpecialistCommandHandler(IApplicationDbContext dbConte
 
         if (specialist is null)
         {
-            return Result.Failure<string>(new Error("SpecialistNotFound", "Specialist with the given id does not exist", ErrorType.NotFound));
+            return Result.Failure<string>(SpecialistErrors.NotFoundSpecialist);
         }
 
         dbContext.Specialists.Remove(specialist);

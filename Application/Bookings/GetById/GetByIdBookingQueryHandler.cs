@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Domain.Bookings;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,15 +15,14 @@ public sealed class GetByIdBookingQueryHandler(IApplicationDbContext context, IU
             .Where(booking => booking.UserId == userContext.UserId && booking.Id == query.Id)
             .Select(booking => new BookingResponse(
                 booking.Id,
-                new DateTime(booking.Slot.Schedule.Date, booking.Slot.StartTime),
-                $"{booking.Slot.Schedule.Specialist.User.FirstName} {booking.Slot.Schedule.Specialist.User.LastName}",
+                booking.Slot!.Schedule!.Date.ToDateTime(booking.Slot.StartTime),
+                $"{booking.Slot!.Schedule!.Specialist!.User!.FirstName} {booking.Slot.Schedule.Specialist.User.LastName}",
                 booking.Slot.Schedule.Specialist.Specialization!.Name))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (result is null)
         {
-            return Result.Failure<BookingResponse>(new Error("NotFoundBooking",
-                "Booking with the given id does not exist.", ErrorType.NotFound));
+            return Result.Failure<BookingResponse>(BookingErrors.NotFoundBooking);
         }
 
         return Result.Success(result);

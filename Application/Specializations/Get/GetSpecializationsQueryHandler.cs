@@ -1,6 +1,8 @@
 ﻿using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Domain.Common;
+using Domain.Specialists;
+using Domain.Specializations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Specializations.Get;
@@ -20,7 +22,7 @@ public sealed class GetSpecializationsQueryHandler(IApplicationDbContext context
 
         if (result.Count == 0)
         {
-            return Result.Failure<List<SpecializationResponse>>(new Error("NotFoundSpecializations", "No specializations found", ErrorType.NotFound));
+            return Result.Failure<List<SpecializationResponse>>(SpecializationErrors.NotFoundSpecializations);
         }
 
         return Result.Success(result);

@@ -140,7 +140,7 @@ public sealed class SpecialistsUnitTests : IDisposable
         Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.Forbidden);
+        result.Error.Type.ShouldBe(ErrorType.Unauthorized);
     }
 
 

@@ -49,7 +49,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
 
         string? result = await response.Content.ReadFromJsonAsync<string>();
-        result.ShouldBe("Slot created successfully");
+        result.ShouldBe("Slot created successfully.");
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NotFound);
 
         ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Schedule with the given id does not exist");
+        result?.Description.ShouldBe("Schedule with the given id does not exist.");
         result?.Code.ShouldBe("NotFoundSchedule");
     }
 
@@ -130,7 +130,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NotFound);
 
         ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Slot with the given id does not exist");
+        result?.Description.ShouldBe("Slot with the given id does not exist.");
         result?.Code.ShouldBe("NotFoundSlot");
     }
 

@@ -9,12 +9,6 @@ public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) 
 {
     public async Task<Result<string>> Handle(CreateScheduleCommand command, CancellationToken cancellationToken)
     {
-        if (command.EndTime < command.StartTime)
-        {
-            return Result.Failure<string>(
-                new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Conflict));
-        }
-
         var schedule = new Schedule
         {
             Id = Guid.NewGuid(),
@@ -29,6 +23,6 @@ public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) 
         await context.Schedules.AddAsync(schedule, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success($"Created schedule with {schedule.Slots.Count} slots");
+        return Result.Success($"Created schedule with {schedule.Slots.Count} slots.");
     }
 } 

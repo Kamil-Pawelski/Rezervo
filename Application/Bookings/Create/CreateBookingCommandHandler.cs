@@ -17,8 +17,7 @@ public sealed class CreateBookingCommandHandler(IApplicationDbContext context, I
 
         if (slot is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSlot", "Slot with the given id does not exist",
-                ErrorType.NotFound));
+            return Result.Failure<string>(SlotErrors.NotFoundSlot);
         }
 
         slot.Status = Status.Booked;

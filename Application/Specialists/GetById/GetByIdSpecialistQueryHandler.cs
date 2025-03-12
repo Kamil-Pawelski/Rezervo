@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Mapper;
 using Domain.Common;
 using Domain.Specialists;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +10,23 @@ public sealed class GetByIdSpecialistQueryHandler(IApplicationDbContext context)
 {
     public async Task<Result<SpecialistsResponse>> Handle(GetByIdSpecialistQuery query, CancellationToken cancellationToken)
     {
-        Specialist? specialist = await context.Specialists
-            .Include(s => s.User)
-            .Include(s => s.Specialization)
-            .SingleOrDefaultAsync(s => s.Id == query.Id, cancellationToken);
+        SpecialistsResponse? specialistResponse = await context.Specialists
+            .Where(s => s.Id == query.Id)
+            .Select(s => new SpecialistsResponse
+            {
+                Id = s.Id,
+                User = new UserDto(s.User!.Id, s.User.FirstName, s.User.LastName),
+                Specialization = new SpecializationDto(s.Specialization!.Id, s.Specialization.Name),
+                PhoneNumber = s.PhoneNumber,
+                Description = s.Description,
+                City = s.City
+            })
+            .SingleOrDefaultAsync(cancellationToken);
 
-        if (specialist is null)
+        if (specialistResponse is null)
         {
-            return Result.Failure<SpecialistsResponse>(new Error("SpecialistNotFound", "Specialist with the given id does not exist", ErrorType.NotFound));
+            return Result.Failure<SpecialistsResponse>(SpecialistErrors.NotFoundSpecialist);
         }
-
-        SpecialistsResponse specialistResponse = specialist.MapToSpecialistResponse();
 
         return new Result<SpecialistsResponse>(specialistResponse, Error.None);
     }

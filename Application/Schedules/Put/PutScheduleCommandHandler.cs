@@ -12,38 +12,36 @@ public sealed class PutScheduleCommandHandler(IApplicationDbContext context, IUs
 {
     public async Task<Result<string>> Handle(PutScheduleCommand command, CancellationToken cancellationToken)
     {
-
-        if (command.EndTime < command.StartTime)
+        var scheduleData = await context.Schedules
+        .Where(schedule => schedule.Id == command.Id)
+        .Select(schedule => new
         {
-            return Result.Failure<string>(
-                new Error("InvalidTimeRange", "EndTime must be later than StartTime.", ErrorType.Validation));
+            Schedule = schedule,
+            SpecialistUserId = schedule.Specialist!.UserId
+        })
+        .FirstOrDefaultAsync(cancellationToken);
+
+        if (scheduleData is null)
+        {
+            return Result.Failure<string>(ScheduleErrors.NotFoundSchedule);
         }
 
-        Schedule? result = await context.Schedules
-            .Include(schedule => schedule.Specialist)
-            .FirstOrDefaultAsync(schedule => schedule.Id == command.Id, cancellationToken);
-
-        if (result is null)
+        if (scheduleData.SpecialistUserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("NotFoundSchedule", "Schedule with the given id does not exist", ErrorType.NotFound));
-        }
-
-        if (result.Specialist!.UserId != userContext.UserId)
-        {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to delete this schedule", ErrorType.Unauthorized));
+            return Result.Failure<string>(CommonErrors.Unauthorized);
         }
 
         List<Slot> invalidSlots = await context.Slots
-            .Where(slot => slot.ScheduleId == result.Id && (slot.StartTime < command.StartTime || slot.StartTime > command.EndTime))
+            .Where(slot => slot.ScheduleId == scheduleData.Schedule.Id &&
+                           (slot.StartTime < command.StartTime || slot.StartTime > command.EndTime))
             .ToListAsync(cancellationToken);
-        
 
         context.Slots.RemoveRange(invalidSlots);
 
-        result.StartTime = command.StartTime;
-        result.EndTime = command.EndTime;
+        scheduleData.Schedule.StartTime = command.StartTime;
+        scheduleData.Schedule.EndTime = command.EndTime;
 
         await context.SaveChangesAsync(cancellationToken);
-        return Result.Success($"Schedule updated successfully. New work time {result.StartTime}-{result.EndTime}");
+        return Result.Success($"Schedule updated successfully. New work time {scheduleData.Schedule.StartTime}-{scheduleData.Schedule.EndTime}.");
     }
 }

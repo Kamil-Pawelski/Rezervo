@@ -158,7 +158,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
         HttpResponseMessage response = await _client.SendAsync(request);
 
         response.IsSuccessStatusCode.ShouldBeFalse();
-        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]

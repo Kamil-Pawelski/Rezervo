@@ -2,6 +2,7 @@
 using Application.Abstractions.Messaging;
 using Domain.Common;
 using Domain.Schedules;
+using Domain.Slots;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Schedules.GetById;
@@ -22,8 +23,7 @@ public sealed class GetByIdScheduleSlotsQueryHandler(IApplicationDbContext conte
 
         if (result.Count == 0)
         {
-            return Result.Failure<List<SlotResponse>>(new Error("NotFoundSlots",
-                "There are not slots available on this day.", ErrorType.NotFound));
+            return Result.Failure<List<SlotResponse>>(SlotErrors.NotFoundSlots);
         }
 
         return Result.Success(result);

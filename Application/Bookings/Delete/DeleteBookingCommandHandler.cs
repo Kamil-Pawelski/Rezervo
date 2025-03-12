@@ -16,22 +16,19 @@ public sealed class DeleteBookingCommandHandler(IApplicationDbContext context, I
 
         if (booking is null)
         {
-            return Result.Failure<string>(new Error("NotFoundBooking", "Booking with the given id does not exist",
-                ErrorType.NotFound));
+            return Result.Failure<string>(BookingErrors.NotFoundBooking);
         }
 
         if (booking.UserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to delete this booking",
-                ErrorType.Unauthorized));
+            return Result.Failure<string>(CommonErrors.Unauthorized);
         }
 
         Slot? slot = await context.Slots.FindAsync([booking.SlotId], cancellationToken);
 
         if (slot is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSlot", "Slot with the given id does not exist",
-                ErrorType.NotFound));
+            return Result.Failure<string>(SlotErrors.NotFoundSlot);
         }
 
         slot.Status = Status.Cancelled;

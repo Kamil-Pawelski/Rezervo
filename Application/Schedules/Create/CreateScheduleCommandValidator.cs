@@ -11,7 +11,8 @@ internal sealed class CreateScheduleCommandValidator : AbstractValidator<CreateS
         RuleFor(command => command.StartTime)
             .NotEmpty();
         RuleFor(command => command.EndTime)
-            .NotEmpty();
+            .NotEmpty()
+            .GreaterThan(command => command.StartTime);
         RuleFor(command => command.Day)
             .NotEmpty();
         RuleFor(command => command.SlotDuration)
