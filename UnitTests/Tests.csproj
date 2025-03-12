@@ -20,10 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bookings\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Web.Api\Web.Api.csproj" />
   </ItemGroup>
 

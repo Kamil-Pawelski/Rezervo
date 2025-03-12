@@ -107,8 +107,7 @@ public sealed class SlotUnitTests : IDisposable
         _context.Specializations.Add(specialization);
         _context.Specialists.Add(specialist);
         _context.Schedules.Add(schedule);
-        _context.Slots.Add(slot);
-        _context.Slots.Add(slotToDelete);
+        _context.Slots.AddRange(slot, slotToDelete);
 
         _context.SaveChanges();
     }

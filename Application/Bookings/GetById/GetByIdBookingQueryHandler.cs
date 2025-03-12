@@ -1,7 +1,6 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Bookings.Get;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 

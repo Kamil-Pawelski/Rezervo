@@ -22,7 +22,7 @@ public sealed class DeleteBookingCommandHandler(IApplicationDbContext context, I
 
         if (booking.UserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not allowed to delete this slot",
+            return Result.Failure<string>(new Error("Unauthorized", "You are not authorized to delete this booking",
                 ErrorType.Unauthorized));
         }
 
