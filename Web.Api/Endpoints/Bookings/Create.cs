@@ -15,8 +15,6 @@ public sealed class Create : IEndpoint
             {
                 Result<string> result = await sender.Send(createBookingCommand, cancellationToken);
 
-                return result.IsSuccess
-                    ? Results.Created($"bookings/{result.Value}", result.Value)
-                    : result.Error.MapError();
+                return result.IsSuccess ? Results.Ok(result.Value) : result.Error.MapError();
             });
 }

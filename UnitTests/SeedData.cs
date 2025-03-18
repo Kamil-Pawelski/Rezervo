@@ -55,6 +55,19 @@ public static class SeedData
     public static readonly Guid TestSlotForBookingId = Guid.NewGuid();
     public static readonly Guid TestSlotForBooking2Id = Guid.NewGuid();
 
+    public static void SeedRoleData(ApplicationDbContext dbContext)
+    {
+        var roles = new List<Role>()
+        {
+              new() { Id = new Guid("dc6c3733-c8b7-41fa-bfa0-b77eb710f9c3"), Name = RolesNames.Admin },
+              new() { Id = new Guid("7a4a1573-aa6e-4504-885e-bbb3a04872f5"), Name = RolesNames.Specialist },
+              new() { Id = new Guid("dd514642-f330-4950-ab3d-a3b454de9fc9"), Name = RolesNames.Client }
+        };
+
+        dbContext.Roles.AddRange(roles);
+        dbContext.SaveChanges();
+    }
+
     public static void SeedUserTestData(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
     {
         User user = new()
@@ -87,9 +100,6 @@ public static class SeedData
             PasswordHash = passwordHasher.Hash(TestPassword)
         };
 
-        dbContext.Users.AddRange(user, admin, user2);
-        dbContext.SaveChanges();
-
         UserRole userRole = new()
         {
             UserId = TestUserId,
@@ -102,6 +112,7 @@ public static class SeedData
             RoleId = TestAdminRoleId
         };
 
+        dbContext.Users.AddRange(user, admin, user2);
         dbContext.UserRoles.AddRange(userRole, adminUserRole);
         dbContext.SaveChanges();
     }

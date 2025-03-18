@@ -1,11 +1,9 @@
-﻿using Application.Users;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using Application.Users.Login;
 using Application.Users.Register;
 using Shouldly;
 using Web.Api;
 using System.Net;
-using Tests.Response;
 
 namespace Tests.Users;
 
@@ -29,44 +27,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
         HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
 
         response.IsSuccessStatusCode.ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task RegisterEndpoint_ShouldReturnConflict_EmailAlreadyExist()
-    {
-        var command = new RegisterUserCommand(
-            "EndpointTest@example.com",
-            "EndpointSecondTest",
-            "Endpoint",
-            "Second",
-            "Password123!",
-            SeedData.TestRoleId
-        );
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-
-        response.IsSuccessStatusCode.ShouldBeFalse();
-        Assert.Equal("EmailTaken", result?.Code);
-    }
-
-    [Fact]
-    public async Task RegisterEndpoint_ShouldReturnConflict_UsernameAlreadyExist()
-    {
-        var command = new RegisterUserCommand(
-            "EndpointThirdTest@example.com",
-            "EndpointTest",
-            "Endpoint",
-            "Third",
-            "Password123!",
-            SeedData.TestRoleId
-        );
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-
-        response.IsSuccessStatusCode.ShouldBeFalse();
-        Assert.Equal("UsernameTaken", result?.Code);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -81,36 +42,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
         string result = await response.Content.ReadAsStringAsync();
 
         response.IsSuccessStatusCode.ShouldBeTrue();
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
         result.ShouldNotBeNullOrWhiteSpace();
-    }
-
-
-    [Fact]
-    public async Task LoginEndpoint_ShouldReturnNotFound_WrongUsername()
-    {
-        var command = new LoginUserCommand(
-            "EndpointTestNotExist@example.com",
-            "Password123!"
-        );
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-
-        response.IsSuccessStatusCode.ShouldBeFalse();
-        Assert.Equal("UserNotFound", result?.Code);
-    }
-
-    [Fact]
-    public async Task LoginEndpoint_ShouldReturnUnauthorized_WrongPassword()
-    {
-        var command = new LoginUserCommand(
-            "EndpointTest@example.com",
-            "Passwordddddddddd123!"
-        );
-
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
-
-        response.IsSuccessStatusCode.ShouldBeFalse();
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 }

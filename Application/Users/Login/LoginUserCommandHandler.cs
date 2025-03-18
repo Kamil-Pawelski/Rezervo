@@ -15,22 +15,18 @@ public sealed class LoginUserCommandHandler(
 {
     public async Task<Result<string>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        User? user =
-            await context.Users.FirstOrDefaultAsync(u => u.Email == command.Login || u.Username == command.Login,
-                cancellationToken);
+        User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == command.Login || u.Username == command.Login, cancellationToken);
 
         if (user is null)
         {
-            return Result.Failure<string>(new Error("UserNotFound", "You passed the wrong username or email.",
-                ErrorType.NotFound));
+            return Result.Failure<string>(UserErrors.NotFoundUser);
         }
 
         bool isPasswordValid = passwordHasher.Verify(command.Password, user.PasswordHash);
 
         if (!isPasswordValid)
         {
-            return Result.Failure<string>(new Error("InvalidPassword", "You passed the wrong password.",
-                ErrorType.Unauthorized));
+            return Result.Failure<string>(UserErrors.InvalidPassword);
         }
 
         string token = tokenProvider.Create(user);

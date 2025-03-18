@@ -12,8 +12,8 @@ public class Register : IEndpoint
         app.MapPost("users/register",
             async ([FromBody] RegisterUserCommand command, ISender sender, CancellationToken cancellationToken) =>
             {
-                Result result = await sender.Send(command, cancellationToken);
+                Result<string> result = await sender.Send(command, cancellationToken);
                 
-                return result.IsSuccess ? Results.Ok(new {Message = "The account has been created."}) : result.Error.MapError();
+                return result.IsSuccess ? Results.Ok(result.Value) : result.Error.MapError();
             });
 }

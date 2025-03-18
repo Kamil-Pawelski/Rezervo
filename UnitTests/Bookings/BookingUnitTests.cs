@@ -297,7 +297,7 @@ public sealed class BookingUnitTests : IDisposable
             _bookingId
         );
 
-        Result<BookingResponse> result = await new GetByIdBookingQueryHandler(_context, new TestUserContext { UserId = _userId }).Handle(query, CancellationToken.None);
+        Result<BookingResponse> result = await new GetByIdBookingQueryHandler(_context, new TestUserContext { UserId = _userId } ).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
