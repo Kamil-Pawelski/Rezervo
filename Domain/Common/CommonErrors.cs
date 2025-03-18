@@ -2,5 +2,5 @@
 
 public static class CommonErrors
 {
-    public static readonly Error Unauthorized = Error.Unauthorized("Unauthorized", "You are unauthorized to do this action.");
+    public static readonly Error Unauthorized = Error.Unauthorized("Unauthorized", "You are not authorized to perform this action.");
 }

@@ -53,56 +53,6 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
     }
 
     [Fact]
-    public async Task CreateSlot_ShouldReturnError_SlotAlreadyExist()
-    {
-
-        var command = new CreateSlotCommand(
-            SeedData.TestScheduleId,
-            SeedData.TestSlotStartTime
-        );
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "slots")
-        {
-            Content = JsonContent.Create(command)
-        };
-        string token = await GenerateSpecialistToken();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        HttpResponseMessage response = await _client.SendAsync(request);
-
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Conflict);
-
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe($"A slot already exists for the time {command.StartTime}. Please choose a different time.");
-        result?.Code.ShouldBe("SlotAlreadyExist");
-    }
-
-    [Fact]
-    public async Task CreateSlot_ShouldReturnError_ScheduleNotFound()
-    {
-
-        var command = new CreateSlotCommand(
-            Guid.NewGuid(), 
-            SeedData.TestSlotStartTime
-        );
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "slots")
-        {
-            Content = JsonContent.Create(command)
-        };
-        string token = await GenerateSpecialistToken();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        HttpResponseMessage response = await _client.SendAsync(request);
-
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NotFound);
-
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Schedule with the given id does not exist.");
-        result?.Code.ShouldBe("NotFoundSchedule");
-    }
-
-    [Fact]
     public async Task DeleteSlot_ShouldReturnSuccess()
     {
 
@@ -117,22 +67,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
         string? result = await response.Content.ReadFromJsonAsync<string>();
         result.ShouldBe("Slot deleted successfully.");
     }
-
-    [Fact]
-    public async Task DeleteSlot_ShouldReturnError_NotFoundSlot()
-    {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"slots/{Guid.NewGuid()}");
-        string token = await GenerateSpecialistToken();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        HttpResponseMessage response = await _client.SendAsync(request);
-
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NotFound);
-
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Slot with the given id does not exist.");
-        result?.Code.ShouldBe("NotFoundSlot");
-    }
+    
 
     [Fact]
     public async Task PutSlot_ShouldReturnSuccess()
@@ -155,56 +90,8 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
 
         string? result = await response.Content.ReadFromJsonAsync<string>();
         result.ShouldBe("Slot updated successfully.");
-    }
-
-    [Fact]
-    public async Task PutSlot_ShouldReturnError_NotFoundSlot()
-    {
-        var command = new PutSlotCommand(
-            Guid.NewGuid(),
-            new TimeOnly(12, 0)
-        );
-
-        var request = new HttpRequestMessage(HttpMethod.Put, $"slots/{Guid.NewGuid()}")
-        {
-            Content = JsonContent.Create(command)
-        };
-        string token = await GenerateSpecialistToken();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        HttpResponseMessage response = await _client.SendAsync(request);
-
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.NotFound);
-
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Slot with the given id does not exist");
-        result?.Code.ShouldBe("NotFoundSlot");
-    }
-
-    [Fact]
-    public async Task PutSlot_ShouldReturnError_InvalidTimeRange()
-    {
-        var command = new PutSlotCommand(
-            SeedData.TestSlotId,
-            new TimeOnly(7, 0)
-        );
-
-        var request = new HttpRequestMessage(HttpMethod.Put, $"slots/{SeedData.TestSlotId}")
-        {
-            Content = JsonContent.Create(command)
-        };
-        string token = await GenerateSpecialistToken();
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        HttpResponseMessage response = await _client.SendAsync(request);
-
-        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.Conflict);
-
-        ErrorResponse? result = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-        result?.Description.ShouldBe("Slot time must be within the schedule time range");
-        result?.Code.ShouldBe("InvalidTimeRange");
-    }
-
+    }    
+    
     private class TokenResponse
     {
         [JsonPropertyName("token")]

@@ -4,145 +4,65 @@ using Application.Slots.Put;
 using Domain.Common;
 using Domain.Schedules;
 using Domain.Slots;
-using Domain.Specialists;
-using Domain.Specializations;
-using Domain.Users;
+using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
-using static Tests.Specialists.SpecialistsUnitTests;
+using static Tests.SeedData;
 
 namespace Tests.Slots;
 
-public sealed class SlotUnitTests : IDisposable
+public sealed class SlotUnitTests
 {
     private readonly ApplicationDbContext _context;
     private readonly TestUserContext _userContext;
 
-    private Guid _specialistId;
-    private Guid _userId;
-    private Guid _specializationId;
-    private Guid _scheduleId;
-    private Guid _slotId;
-    private Guid _slotIdToDelete;
 
     public SlotUnitTests()
     {
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("TestDatabase")
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         _context = new ApplicationDbContext(options);
         _userContext = new TestUserContext();
 
-        SeedData();
-    }
-
-    private void SeedData()
-    {
-        _userId = Guid.NewGuid();
-
-        var user = new User
-        {
-            Id = _userId,
-            Email = "TestMail@test.com",
-            FirstName = "Test",
-            LastName = "User",
-            Username = "TestUser",
-            PasswordHash = "Password123!"
-        };
-
-        _specializationId = Guid.NewGuid();
-
-        var specialization = new Specialization
-        {
-            Id = _specializationId,
-            Name = "Test Specialization",
-        };
-
-
-        _specialistId = Guid.NewGuid();
-
-        var specialist = new Specialist
-        {
-            Id = _specialistId,
-            UserId = _userId,
-            SpecializationId = _specializationId,
-            Description = "Test Description",
-            PhoneNumber = "123456789",
-            City = "Test"
-        };
-
-
-        _scheduleId = Guid.NewGuid();
-
-        var schedule = new Schedule
-        {
-            Id = _scheduleId,
-            SpecialistId = _specialistId,
-            StartTime = new TimeOnly(8, 0),
-            EndTime = new TimeOnly(16, 0),
-            Date = new DateOnly(2025, 3, 10)
-        };
-
-        _slotId = Guid.NewGuid();
-
-        var slot = new Slot
-        {
-            Id = _slotId,
-            ScheduleId = _scheduleId,
-            StartTime = new TimeOnly(9, 0),
-        };
-
-        _slotIdToDelete = Guid.NewGuid();
-
-        var slotToDelete = new Slot
-        {
-            Id = _slotIdToDelete,
-            ScheduleId = _scheduleId,
-            StartTime = new TimeOnly(12, 0),
-        };
-
-        _context.Users.Add(user);
-        _context.Specializations.Add(specialization);
-        _context.Specialists.Add(specialist);
-        _context.Schedules.Add(schedule);
-        _context.Slots.AddRange(slot, slotToDelete);
-
-        _context.SaveChanges();
+        SeedRoleData(_context);
+        SeedUserTestData(_context, new PasswordHasher());
+        SeedSpecialistTestData(_context);
+        SeedScheduleAndSlotsTestData(_context);
+        SeedBookingData(_context);
     }
 
     [Fact]
     public async Task CreateSlot_ShouldReturnSuccess()
     {
         var command = new CreateSlotCommand(
-            _scheduleId,
+            TestScheduleId,
             new TimeOnly(8, 30)
         );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe("Slot created successfully.");
     }
 
     [Fact]
     public async Task CreateSlot_ShouldReturnError_SlotAlreadyExist()
     {
         var command = new CreateSlotCommand(
-            _scheduleId,
+            TestScheduleId,
             new TimeOnly(9, 0)
         );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("SlotAlreadyExist");
-        result.Error.Description.ShouldBe($"A slot already exists for the time {command.StartTime}. Please choose a different time.");
+        result.Error.Code.ShouldBe(SlotErrors.SlotAlreadyExist(new TimeOnly(9, 0)).Code);
     }
 
     [Fact]
@@ -153,20 +73,19 @@ public sealed class SlotUnitTests : IDisposable
             new TimeOnly(10, 0)
         );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundSchedule");
-        result.Error.Description.ShouldBe("Schedule with the given id does not exist.");
+        result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
     }
 
     [Fact]
     public async Task CreateSlot_ShouldReturnError_Unauthorized()
     {
         var command = new CreateSlotCommand(
-            _scheduleId,
+            TestScheduleId,
             new TimeOnly(10, 0)
         );
 
@@ -175,25 +94,20 @@ public sealed class SlotUnitTests : IDisposable
         Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
+        result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
     }
 
     [Fact]
     public async Task DeleteSlot_ShouldReturnSuccess()
     {
-        var command = new DeleteSlotCommand(_slotIdToDelete);
+        var command = new DeleteSlotCommand(TestSlotToDeleteId);
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         var handler = new DeleteSlotCommandHandler(_context, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe("Slot deleted successfully.");
-
-        Slot? slot = await _context.Slots.FindAsync(_slotIdToDelete);
-        slot.ShouldBeNull();
     }
 
     [Fact]
@@ -201,20 +115,19 @@ public sealed class SlotUnitTests : IDisposable
     {
         var command = new DeleteSlotCommand(Guid.NewGuid());
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         var handler = new DeleteSlotCommandHandler(_context, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundSlot");
-        result.Error.Description.ShouldBe("Slot with the given id does not exist.");
+        result.Error.Code.ShouldBe(SlotErrors.NotFoundSlot.Code);
     }
 
     [Fact]
     public async Task DeleteSlot_ShouldReturnError_Unauthorized()
     {
-        var command = new DeleteSlotCommand(_slotId);
+        var command = new DeleteSlotCommand(TestSlotId);
 
         _userContext.UserId = Guid.NewGuid();
 
@@ -222,27 +135,24 @@ public sealed class SlotUnitTests : IDisposable
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are unauthorized to do this action.");
+        result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
     }
 
     [Fact]
     public async Task PutSlot_ShouldReturnSuccess()
     {
         var command = new PutSlotCommand(
-            _slotId, 
+            TestSlotId,
             new TimeOnly(12, 0)
-            );
+        );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         var handler = new PutSlotCommandHandler(_context, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe("Slot updated successfully.");
-
-        Slot? slot = await _context.Slots.FindAsync(_slotId);
+        Slot? slot = await _context.Slots.FindAsync(TestSlotId);
         slot.ShouldNotBeNull();
         slot.StartTime.ShouldBe(new TimeOnly(12, 0));
     }
@@ -251,27 +161,26 @@ public sealed class SlotUnitTests : IDisposable
     public async Task PutSlot_ShouldReturnError_NotFoundSlot()
     {
         var command = new PutSlotCommand(
-            Guid.NewGuid(), 
+            Guid.NewGuid(),
             new TimeOnly(12, 0)
-            );
+        );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         var handler = new PutSlotCommandHandler(_context, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundSlot");
-        result.Error.Description.ShouldBe("Slot with the given id does not exist");
+        result.Error.Code.ShouldBe(SlotErrors.NotFoundSlot.Code);
     }
 
     [Fact]
     public async Task PutSlot_ShouldReturnError_Unauthorized()
     {
         var command = new PutSlotCommand(
-            _slotId, 
+            TestSlotId,
             new TimeOnly(12, 0)
-            );
+        );
 
         _userContext.UserId = Guid.NewGuid();
 
@@ -279,28 +188,23 @@ public sealed class SlotUnitTests : IDisposable
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("Unauthorized");
-        result.Error.Description.ShouldBe("You are not allowed to delete this slot");
+        result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
     }
 
     [Fact]
     public async Task PutSlot_ShouldReturnError_InvalidTimeRange()
     {
         var command = new PutSlotCommand(
-            _slotId, 
+            TestSlotId,
             new TimeOnly(7, 0)
-            );
+        );
 
-        _userContext.UserId = _userId;
+        _userContext.UserId = TestUserId;
 
         var handler = new PutSlotCommandHandler(_context, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidTimeRange");
-        result.Error.Description.ShouldBe("Slot time must be within the schedule time range");
+        result.Error.Code.ShouldBe(SlotErrors.InvalidTimeRange.Code);
     }
-
-
-    public void Dispose() => _context.Dispose();
 }

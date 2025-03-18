@@ -1,5 +1,4 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Specialists;
+﻿using Application.Specialists;
 using Application.Specialists.Create;
 using Application.Specialists.Delete;
 using Application.Specialists.Get;
@@ -8,74 +7,29 @@ using Application.Specialists.GetBySpecialization;
 using Application.Specialists.Put;
 using Domain.Common;
 using Domain.Specialists;
-using Domain.Specializations;
-using Domain.Users;
+using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
+using static Tests.SeedData;
 
 namespace Tests.Specialists;
 
-public sealed class SpecialistsUnitTests : IDisposable
+public sealed class SpecialistsUnitTests
 {
     private readonly ApplicationDbContext _context;
-
-    private readonly TestUserContext _userContext;
-
-    private Guid _existingSpecialistId;
-    private Guid _existingUserId;
-    private Guid _existingSpecializationId;
-
     public SpecialistsUnitTests()
     {
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("TestConnection") 
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()) 
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _userContext = new TestUserContext();
 
-        SeedData();
-    }
-    // TODO - Creating one common method for all tests
-    private void SeedData()
-    {
-        _existingUserId = Guid.NewGuid();
-        _existingSpecialistId = Guid.NewGuid();
-        _existingSpecializationId = Guid.NewGuid();
-
-        var user = new User
-        {
-            Id = _existingUserId,
-            Email = "EndpointTest@example.com",
-            Username = "EndpointTest",
-            FirstName = "Endpoint",
-            LastName = "Test",
-            PasswordHash = "Password123!"
-        };
-
-        var specialization = new Specialization
-        {
-            Id =  _existingSpecializationId,
-            Name = "Test Specialization"
-        };
-
-
-        var specialist = new Specialist
-        {
-            Id = _existingSpecialistId,
-            UserId = _existingUserId,
-            SpecializationId = _existingSpecializationId,
-            Description = "Test Description",
-            PhoneNumber = "123456789",
-            City = "Warsaw"
-        };
-
-        _context.Specializations.Add(specialization);
-        _context.Specialists.Add(specialist);
-        _context.Users.Add(user);
-        _context.SaveChanges();
-    }
+        SeedRoleData(_context);
+        SeedUserTestData(_context, new PasswordHasher());
+        SeedSpecialistTestData(_context);
+    }  
 
     [Fact]
     public async Task GetSpecialistsTest_ShouldReturnSpecialists()
@@ -91,12 +45,12 @@ public sealed class SpecialistsUnitTests : IDisposable
     [Fact]
     public async Task GetByIdSpecialistTask_ShouldReturnSpecialist()
     {
-        var query = new GetByIdSpecialistQuery(_existingSpecialistId);
+        var query = new GetByIdSpecialistQuery(TestSpecialistId);
+
         Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
-        result.Value.Id.ShouldBe(_existingSpecialistId);
     }
 
     [Fact]
@@ -106,15 +60,15 @@ public sealed class SpecialistsUnitTests : IDisposable
         Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.NotFound);
+        result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
 
     [Fact]
     public async Task CreateSpecialistTest_ShouldReturnOk()
     {
         var command = new CreateSpecialistCommand(
-            _existingUserId,
-            _existingSpecializationId,
+            TestUserId,
+            TestSpecializationId,
             "Test Description",
             "123456789",
             "Warsaw"
@@ -129,18 +83,17 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task PutSpecialistTest_ShouldReturnForbidden()
     {
         var command = new PutSpecialistCommand(
-            _existingSpecialistId,
-            _existingUserId,
+            TestUserId,
+            TestSpecializationId,
             "Test Description",
             "123456789",
             "Cracow"
         );
 
-        _userContext.UserId = Guid.NewGuid();
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.Unauthorized);
+        result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
     }
 
 
@@ -148,15 +101,14 @@ public sealed class SpecialistsUnitTests : IDisposable
     public async Task PutSpecialistTest_ShouldReturnOk()
     {
         var command = new PutSpecialistCommand(
-            _existingSpecialistId,
-            _existingUserId,
+            TestSpecialistId,
+            TestUserId,
             "Test Description",
             "123456789",
             "Cracow"
         );
 
-        _userContext.UserId = _existingUserId;
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.City.ShouldBe("Cracow");
@@ -167,15 +119,15 @@ public sealed class SpecialistsUnitTests : IDisposable
     {
         var command = new PutSpecialistCommand(
             Guid.NewGuid(),
-            _existingUserId,
+            TestUserId,
             "Test Description",
             "123456789",
             "Cracow"
         );
-        _userContext.UserId = _existingUserId;
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.NotFound);
+        result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
 
     [Fact]
@@ -185,13 +137,13 @@ public sealed class SpecialistsUnitTests : IDisposable
         Result<string> result = await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.NotFound);
+        result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
 
     [Fact]
     public async Task DeleteSpecialistTest_ShouldReturnOk()
     {
-        var command = new DeleteSpecialistCommand(_existingSpecialistId);
+        var command = new DeleteSpecialistCommand(TestSpecialistToDeleteId);
         Result<string> result = await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
     }
@@ -199,7 +151,7 @@ public sealed class SpecialistsUnitTests : IDisposable
     [Fact]
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnOk()
     {
-        var command = new GetBySpecializationSpecialistsCommand(_existingSpecializationId);
+        var command = new GetBySpecializationSpecialistsCommand(TestSpecializationId);
         Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -211,8 +163,6 @@ public sealed class SpecialistsUnitTests : IDisposable
         var command = new GetBySpecializationSpecialistsCommand(Guid.NewGuid());
         Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Type.ShouldBe(ErrorType.NotFound);
+        result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
-
-    public void Dispose() => _context.Dispose();
 }

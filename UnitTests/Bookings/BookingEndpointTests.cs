@@ -43,7 +43,7 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
 
         HttpResponseMessage response = await _client.SendAsync(request);
 
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]

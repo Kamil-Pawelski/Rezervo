@@ -18,20 +18,17 @@ public sealed class PutSlotCommandHandler(IApplicationDbContext context, IUserCo
 
         if (slot is null)
         {
-            return Result.Failure<string>(new Error("NotFoundSlot", "Slot with the given id does not exist",
-                ErrorType.NotFound));
+            return Result.Failure<string>(SlotErrors.NotFoundSlot);
         }
 
         if (slot.Schedule?.Specialist?.UserId != userContext.UserId)
         {
-            return Result.Failure<string>(new Error("Unauthorized", "You are not allowed to delete this slot",
-                ErrorType.Unauthorized));
+            return Result.Failure<string>(CommonErrors.Unauthorized);
         }
 
-        if(command.StartTime < slot.Schedule.StartTime || command.StartTime > slot.Schedule.EndTime) // TODO move to validation
+        if(command.StartTime < slot.Schedule.StartTime || command.StartTime > slot.Schedule.EndTime)
         {
-            return Result.Failure<string>(new Error("InvalidTimeRange", "Slot time must be within the schedule time range",
-                ErrorType.Conflict));
+            return Result.Failure<string>(SlotErrors.InvalidTimeRange);
         }
 
         slot.StartTime = command.StartTime;

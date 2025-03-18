@@ -1,6 +1,7 @@
 ﻿using Application.Users.Login;
 using Application.Users.Register;
 using Domain.Common;
+using Domain.Users;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +67,7 @@ public sealed class UserUnitTests
         Result result = await new RegisterUserCommandHandler(_context, _passwordHasher).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("EmailTaken");
+        result.Error.Code.ShouldBe(UserErrors.EmailTaken.Code);
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public sealed class UserUnitTests
         Result result = await new RegisterUserCommandHandler(_context, _passwordHasher).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("UsernameTaken");
+        result.Error.Code.ShouldBe(UserErrors.UsernameTaken.Code);
     }
 
     [Fact]
@@ -111,7 +112,7 @@ public sealed class UserUnitTests
         Result result = await new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundUser");
+        result.Error.Code.ShouldBe(UserErrors.NotFoundUser.Code);
     }
 
     [Fact]
@@ -125,7 +126,7 @@ public sealed class UserUnitTests
         Result result = await new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("InvalidPassword");
+        result.Error.Code.ShouldBe(UserErrors.InvalidPassword.Code);
     }
 
 }
