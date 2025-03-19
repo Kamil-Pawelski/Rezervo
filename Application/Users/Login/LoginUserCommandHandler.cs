@@ -29,7 +29,12 @@ public sealed class LoginUserCommandHandler(
             return Result.Failure<string>(UserErrors.InvalidPassword);
         }
 
-        string token = tokenProvider.Create(user);
+        List<string> roles = await context.UserRoles
+         .Where(ur => ur.UserId == user.Id)
+         .Select(ur => ur.Role.Name)
+         .ToListAsync(cancellationToken);
+
+        string token = tokenProvider.Create(user, roles);
 
         return new Result<string>(token, Error.None);
     }

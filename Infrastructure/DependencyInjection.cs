@@ -27,7 +27,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>()); 
 
         return services;
     }
@@ -52,7 +52,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddSingleton<ITokenProvider, TokenProvider>();
         services.AddScoped<IUserContext, UserContext>();
 
         return services;

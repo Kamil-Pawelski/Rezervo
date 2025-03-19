@@ -1,6 +1,8 @@
 using System.Reflection;
 using Application;
 using Infrastructure;
+using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using Web.Api.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -16,7 +18,6 @@ builder.Services
     .AddInfrastructure(builder.Configuration);
 
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
-
 
 WebApplication app = builder.Build();
 

@@ -5,11 +5,7 @@ using Application.Bookings.Get;
 using Application.Bookings.GetById;
 using Domain.Bookings;
 using Domain.Common;
-using Domain.Schedules;
 using Domain.Slots;
-using Domain.Specialists;
-using Domain.Specializations;
-using Domain.Users;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +13,7 @@ using Shouldly;
 using static Tests.SeedData;
 namespace Tests.Bookings;
 
-public sealed class BookingUnitTests : IDisposable
+public sealed class BookingUnitTests
 {
     private readonly ApplicationDbContext _context;
 
@@ -35,8 +31,6 @@ public sealed class BookingUnitTests : IDisposable
         SeedScheduleAndSlotsTestData(_context);
         SeedBookingData(_context);
     }
-
-
 
     [Fact]
     public async Task CreateBooking_ShouldReturnSuccess()
@@ -56,7 +50,7 @@ public sealed class BookingUnitTests : IDisposable
         Result<string> result = await new CreateBookingCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundSlot");
+        result.Error.Code.ShouldBe(SlotErrors.NotFoundSlot.Code);
     }
 
     [Fact]
@@ -79,7 +73,7 @@ public sealed class BookingUnitTests : IDisposable
         Result<string> result = await new DeleteBookingCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundBooking");
+        result.Error.Code.ShouldBe(BookingErrors.NotFoundBooking.Code);
     }
 
     [Fact]
@@ -91,7 +85,7 @@ public sealed class BookingUnitTests : IDisposable
         Result<string> result = await new DeleteBookingCommandHandler(_context, new TestUserContext { UserId = TestUserId2 }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("Unauthorized");
+        result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
     }
 
     [Fact]
@@ -112,7 +106,7 @@ public sealed class BookingUnitTests : IDisposable
         Result<List<BookingResponse>> result = await new GetBookingQueryHandler(_context, new TestUserContext { UserId = TestUserId2 }).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundBookings");
+        result.Error.Code.ShouldBe(BookingErrors.NotFoundBookings.Code);
     }
 
     [Fact]
@@ -134,7 +128,6 @@ public sealed class BookingUnitTests : IDisposable
         Result<BookingResponse> result = await new GetByIdBookingQueryHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
-        result.Error.Code.ShouldBe("NotFoundBooking");
+        result.Error.Code.ShouldBe(BookingErrors.NotFoundBooking.Code);
     }
-    public void Dispose() => _context.Dispose();
 }

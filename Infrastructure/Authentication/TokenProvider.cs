@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Data;
+using System.Security.Claims;
 using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
@@ -9,23 +10,26 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Authentication;
 
-public sealed class TokenProvider(IConfiguration configuration, IApplicationDbContext dbContext) : ITokenProvider
+public sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    public string Create(User user)
+    public string Create(User user, List<string> roles)
     {
         string secretKey = configuration["Jwt:Secret"]!;
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email)
+        };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(
-                [
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(ClaimTypes.Role, GetRole(user.Id))
-                ]),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
             SigningCredentials = credentials,
             Issuer = configuration["Jwt:Issuer"],
@@ -37,11 +41,5 @@ public sealed class TokenProvider(IConfiguration configuration, IApplicationDbCo
         string token = tokenHandler.CreateToken(tokenDescriptor);
 
         return token;
-    }
-
-    private string GetRole(Guid id)
-    {
-        string roleName = dbContext.UserRoles.Where(ur => ur.UserId == id).Select(ur => ur.Role.Name).First();
-        return roleName;
     }
 }
