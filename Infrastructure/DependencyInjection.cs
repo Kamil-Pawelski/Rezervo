@@ -1,8 +1,10 @@
 ﻿using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using Application.Abstractions.Repositories;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +20,8 @@ public static class DependencyInjection
         IConfiguration configuration) =>
         services
             .AddDatabase(configuration)
-            .AddAuthenticationInternal(configuration);
+            .AddAuthenticationInternal(configuration)
+            .AddRepositories();
 
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -27,7 +30,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>()); 
+        services.AddSingleton<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>()); 
 
         return services;
     }
@@ -57,4 +60,10 @@ public static class DependencyInjection
 
         return services;
     }
+
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddSingleton<IUserRepository, UserRepository>();
+        return services;
+    }       
 }

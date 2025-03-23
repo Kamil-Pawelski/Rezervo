@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +11,13 @@ namespace Application.Users.Login;
 public sealed class LoginUserCommandHandler(
     IApplicationDbContext context,
     IPasswordHasher passwordHasher,
-    ITokenProvider tokenProvider
+    ITokenProvider tokenProvider,
+    IUserRepository userRepository
 ) : ICommandHandler<LoginUserCommand, string>
 {
     public async Task<Result<string>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == command.Login || u.Username == command.Login, cancellationToken);
+        User? user = await userRepository.FindByEmailOrUsernameAsync(command.Login, cancellationToken);
 
         if (user is null)
         {

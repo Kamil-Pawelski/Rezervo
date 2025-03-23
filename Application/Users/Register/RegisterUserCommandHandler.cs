@@ -1,23 +1,27 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Register;
 
-public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher)
+public sealed class RegisterUserCommandHandler(
+    IApplicationDbContext context, 
+    IPasswordHasher passwordHasher, 
+    IUserRepository userRepository)
     : ICommandHandler<RegisterUserCommand, string>
 {
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        if (await context.Users.AnyAsync(user => user.Email == command.Email, cancellationToken))
+        if (await userRepository.IsEmailTakenAsync(command.Email, cancellationToken))
         {
             return Result.Failure<string>(UserErrors.EmailTaken);
         }
 
-        if (await context.Users.AnyAsync(user => user.Username == command.Username, cancellationToken))
+        if (await userRepository.IsUsernameTakenAsync(command.Username, cancellationToken))
         {
             return Result.Failure<string>(UserErrors.UsernameTaken);
         }
@@ -45,7 +49,7 @@ public sealed class RegisterUserCommandHandler(IApplicationDbContext context, IP
             RoleId = role.Id
         };
 
-        await context.Users.AddAsync(user, cancellationToken);
+        await userRepository.AddAsync(user, cancellationToken);
         await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
