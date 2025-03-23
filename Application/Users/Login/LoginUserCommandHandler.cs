@@ -1,23 +1,21 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Login;
 
 public sealed class LoginUserCommandHandler(
-    IApplicationDbContext context,
     IPasswordHasher passwordHasher,
     ITokenProvider tokenProvider,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    IUserRoleRepository userRoleRepository
 ) : ICommandHandler<LoginUserCommand, string>
 {
     public async Task<Result<string>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        User? user = await userRepository.FindByEmailOrUsernameAsync(command.Login, cancellationToken);
+        User? user = await userRepository.GetByEmailOrUsernameAsync(command.Login, cancellationToken);
 
         if (user is null)
         {
@@ -31,10 +29,7 @@ public sealed class LoginUserCommandHandler(
             return Result.Failure<string>(UserErrors.InvalidPassword);
         }
 
-        List<string> roles = await context.UserRoles
-         .Where(ur => ur.UserId == user.Id)
-         .Select(ur => ur.Role.Name)
-         .ToListAsync(cancellationToken);
+        List<string> roles = await userRoleRepository.GetRolesByUserIdAsync(user.Id, cancellationToken);
 
         string token = tokenProvider.Create(user, roles);
 

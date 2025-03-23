@@ -4,14 +4,15 @@ using Application.Abstractions.Messaging;
 using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Register;
 
 public sealed class RegisterUserCommandHandler(
-    IApplicationDbContext context, 
-    IPasswordHasher passwordHasher, 
-    IUserRepository userRepository)
+    IPasswordHasher passwordHasher,
+    IUserRepository userRepository,
+    IRoleRepository roleRepository,
+    IUserRoleRepository userRoleRepository
+    )
     : ICommandHandler<RegisterUserCommand, string>
 {
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
@@ -36,7 +37,7 @@ public sealed class RegisterUserCommandHandler(
             PasswordHash = passwordHasher.Hash(command.Password)
         };
 
-        Role? role = await context.Roles.FirstOrDefaultAsync(role => role.Id == command.RoleId, cancellationToken);
+        Role? role = await roleRepository.GetByIdAsync(command.RoleId, cancellationToken);
 
         if (role is null)
         {
@@ -50,9 +51,8 @@ public sealed class RegisterUserCommandHandler(
         };
 
         await userRepository.AddAsync(user, cancellationToken);
-        await context.UserRoles.AddAsync(userRole, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await userRoleRepository.AddAsync(userRole, cancellationToken);
 
         return Result.Success("User has been successfully created.");
-   }
+    }
 }

@@ -18,6 +18,8 @@ public sealed class UserUnitTests
     private readonly ApplicationDbContext _context;
     private readonly TokenProvider _tokenProvider;
     private readonly UserRepository _userRepository;
+    private readonly RoleRepository _roleRepository;
+    private readonly UserRoleRepository _userRoleRepository;
 
     public UserUnitTests()
     {
@@ -33,6 +35,8 @@ public sealed class UserUnitTests
         _passwordHasher = new PasswordHasher();
         _tokenProvider = new TokenProvider(configuration);
         _userRepository = new UserRepository(_context);
+        _roleRepository = new RoleRepository(_context);
+        _userRoleRepository = new UserRoleRepository(_context);
 
         SeedData.SeedRoleData(_context);
         SeedData.SeedUserTestData(_context, _passwordHasher);
@@ -50,7 +54,7 @@ public sealed class UserUnitTests
             SeedData.TestRoleId
         );
 
-        Result result = await new RegisterUserCommandHandler(_context, _passwordHasher, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -67,7 +71,7 @@ public sealed class UserUnitTests
             SeedData.TestRoleId
         );       
 
-        Result result = await new RegisterUserCommandHandler(_context, _passwordHasher, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(UserErrors.EmailTaken.Code);
@@ -85,7 +89,7 @@ public sealed class UserUnitTests
             SeedData.TestRoleId
         );
 
-        Result result = await new RegisterUserCommandHandler(_context, _passwordHasher, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(UserErrors.UsernameTaken.Code);
@@ -99,7 +103,7 @@ public sealed class UserUnitTests
             SeedData.TestPassword
         );
 
-        Result result = await new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new LoginUserCommandHandler(_passwordHasher, _tokenProvider, _userRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -112,7 +116,7 @@ public sealed class UserUnitTests
             SeedData.TestPassword
         );
 
-        Result result = await new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new LoginUserCommandHandler(_passwordHasher, _tokenProvider, _userRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(UserErrors.NotFoundUser.Code);
@@ -126,7 +130,7 @@ public sealed class UserUnitTests
             "Wrong123!"
         );
 
-        Result result = await new LoginUserCommandHandler(_context, _passwordHasher, _tokenProvider, _userRepository).Handle(command, CancellationToken.None);
+        Result result = await new LoginUserCommandHandler(_passwordHasher, _tokenProvider, _userRepository, _userRoleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(UserErrors.InvalidPassword.Code);

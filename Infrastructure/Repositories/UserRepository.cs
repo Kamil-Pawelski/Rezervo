@@ -13,7 +13,7 @@ public sealed class UserRepository(ApplicationDbContext context) : IUserReposito
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
-    public async Task<User?> FindByEmailOrUsernameAsync(string login, CancellationToken cancellationToken) 
+    public async Task<User?> GetByEmailOrUsernameAsync(string login, CancellationToken cancellationToken) 
         => await context.Users.FirstOrDefaultAsync(u => u.Email == login || u.Username == login, cancellationToken);
     public async Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken) 
         => await context.Users.AnyAsync(user => user.Email == email, cancellationToken);
