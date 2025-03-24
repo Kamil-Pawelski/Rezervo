@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Bookings;
 using Domain.Common;
 using Domain.Schedules;
@@ -8,12 +8,12 @@ using Domain.Slots;
 
 namespace Application.Bookings.Create;
 
-public sealed class CreateBookingCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<CreateBookingCommand, string>
+public sealed class CreateBookingCommandHandler(ISlotRepository slotRepository, IBookingRepository bookingRepository, IUserContext userContext) : ICommandHandler<CreateBookingCommand, string>
 {
     public async Task<Result<string>> Handle(CreateBookingCommand command, CancellationToken cancellationToken)
     {
 
-        Slot? slot = await context.Slots.FindAsync([command.SlotId], cancellationToken);
+        Slot? slot = await slotRepository.GetByIdAsync(command.SlotId, cancellationToken);
 
         if (slot is null)
         {
@@ -22,13 +22,14 @@ public sealed class CreateBookingCommandHandler(IApplicationDbContext context, I
 
         slot.Status = Status.Booked;
 
-        await context.Bookings.AddAsync(new Booking
+        var booking = new Booking
         {
             UserId = userContext.UserId,
             SlotId = command.SlotId
-        }, cancellationToken);
+        };
 
-        await context.SaveChangesAsync(cancellationToken);
+        await bookingRepository.AddAsync(booking, cancellationToken);
+        await slotRepository.UpdateAsync(slot, cancellationToken);
 
         return Result.Success("Booking created.");
     }

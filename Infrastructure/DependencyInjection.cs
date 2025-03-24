@@ -70,6 +70,7 @@ public static class DependencyInjection
         services.AddSingleton<ISpecialistRepository, SpecialistRepository>();
         services.AddSingleton<ISlotRepository, SlotRepository>();
         services.AddSingleton<IScheduleRepository, ScheduleRepository>();
+        services.AddSingleton<IBookingRepository, BookingRepository>();
 
         return services;
     }       
