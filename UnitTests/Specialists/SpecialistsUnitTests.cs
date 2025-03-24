@@ -1,4 +1,5 @@
-﻿using Application.Specialists;
+﻿using Application.Abstractions.Repositories;
+using Application.Specialists;
 using Application.Specialists.Create;
 using Application.Specialists.Delete;
 using Application.Specialists.Get;
@@ -9,6 +10,7 @@ using Domain.Common;
 using Domain.Specialists;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using static Tests.SeedData;
@@ -18,6 +20,9 @@ namespace Tests.Specialists;
 public sealed class SpecialistsUnitTests
 {
     private readonly ApplicationDbContext _context;
+    private readonly SpecialistRepository _specialistRepository;
+    private readonly SpecializationRepository _specializationRepository;
+
     public SpecialistsUnitTests()
     {
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -25,6 +30,8 @@ public sealed class SpecialistsUnitTests
             .Options;
 
         _context = new ApplicationDbContext(options);
+        _specialistRepository = new SpecialistRepository(_context);
+        _specializationRepository = new SpecializationRepository(_context);
 
         SeedRoleData(_context);
         SeedUserTestData(_context, new PasswordHasher());
@@ -35,7 +42,7 @@ public sealed class SpecialistsUnitTests
     public async Task GetSpecialistsTest_ShouldReturnSpecialists()
     {
         var query = new GetSpecialistsQuery();
-        Result<List<SpecialistsResponse>> result = await new GetSpecialistsQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<List<SpecialistsResponse>> result = await new GetSpecialistsQueryHandler(_specialistRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -47,7 +54,7 @@ public sealed class SpecialistsUnitTests
     {
         var query = new GetByIdSpecialistQuery(TestSpecialistId);
 
-        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_specialistRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
@@ -57,7 +64,7 @@ public sealed class SpecialistsUnitTests
     public async Task GetByIdSpecialistTask_ShouldReturnNotFound()
     {
         var query = new GetByIdSpecialistQuery(Guid.NewGuid());
-        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_specialistRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
@@ -74,7 +81,7 @@ public sealed class SpecialistsUnitTests
             "Warsaw"
         );
 
-        Result result = await new CreateSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result result = await new CreateSpecialistCommandHandler(_specialistRepository, _specializationRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -90,7 +97,7 @@ public sealed class SpecialistsUnitTests
             "Cracow"
         );
 
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
@@ -108,7 +115,7 @@ public sealed class SpecialistsUnitTests
             "Cracow"
         );
 
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.City.ShouldBe("Cracow");
@@ -125,7 +132,7 @@ public sealed class SpecialistsUnitTests
             "Cracow"
         );
 
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_context, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
@@ -134,7 +141,7 @@ public sealed class SpecialistsUnitTests
     public async Task DeleteSpecialistTest_ShouldReturnNotFound()
     {
         var command = new DeleteSpecialistCommand(Guid.NewGuid());
-        Result<string> result = await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteSpecialistCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
@@ -144,7 +151,7 @@ public sealed class SpecialistsUnitTests
     public async Task DeleteSpecialistTest_ShouldReturnOk()
     {
         var command = new DeleteSpecialistCommand(TestSpecialistToDeleteId);
-        Result<string> result = await new DeleteSpecialistCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteSpecialistCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
     }
 
@@ -152,7 +159,7 @@ public sealed class SpecialistsUnitTests
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnOk()
     {
         var command = new GetBySpecializationSpecialistsCommand(TestSpecializationId);
-        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
     }
@@ -161,7 +168,7 @@ public sealed class SpecialistsUnitTests
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnNotFound()
     {
         var command = new GetBySpecializationSpecialistsCommand(Guid.NewGuid());
-        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }

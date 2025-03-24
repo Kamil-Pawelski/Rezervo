@@ -66,6 +66,8 @@ public static class DependencyInjection
         services.AddSingleton<IUserRepository, UserRepository>();
         services.AddSingleton<IRoleRepository, RoleRepository>();
         services.AddSingleton<IUserRoleRepository, UserRoleRepository>();
+        services.AddSingleton<ISpecializationRepository, SpecializationRepository>();
+        services.AddSingleton<ISpecialistRepository, SpecialistRepository>();
         return services;
     }       
 }

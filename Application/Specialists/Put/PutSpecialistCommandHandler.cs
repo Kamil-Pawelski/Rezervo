@@ -1,13 +1,12 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
+using Application.Mapper;
 using Domain.Common;
 using Domain.Specialists;
-using Microsoft.EntityFrameworkCore;
-
 namespace Application.Specialists.Put;
 
-public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<PutSpecialistCommand, SpecialistsResponse>
+public sealed class PutSpecialistCommandHandler(ISpecialistRepository specialistRepository, IUserContext userContext) : ICommandHandler<PutSpecialistCommand, SpecialistsResponse>
 {
     public async Task<Result<SpecialistsResponse>> Handle(PutSpecialistCommand command, CancellationToken cancellationToken)
     {
@@ -16,10 +15,7 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
             return Result.Failure<SpecialistsResponse>(CommonErrors.Unauthorized);
         }
 
-        Specialist? specialist = await context.Specialists
-            .Include(s => s.User)
-            .Include(s => s.Specialization)
-            .FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
+        Specialist? specialist = await specialistRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (specialist is null)
         {
@@ -30,18 +26,8 @@ public sealed class PutSpecialistCommandHandler(IApplicationDbContext context, I
         specialist.Description = command.Description;
         specialist.City = command.City;
 
-        await context.SaveChangesAsync(cancellationToken);
+        await specialistRepository.UpdateAsync(specialist, cancellationToken);
 
-        var specialistResponse = new SpecialistsResponse
-        {
-            Id = specialist.Id,
-            User = new UserDto(specialist.User!.Id, specialist.User.FirstName, specialist.User.LastName),
-            Specialization = new SpecializationDto(specialist.Specialization!.Id, specialist.Specialization.Name),
-            PhoneNumber = specialist.PhoneNumber,
-            Description = specialist.Description,
-            City = specialist.City
-        };
-
-        return Result.Success(specialistResponse);
+        return Result.Success(specialist.MapToSpecialistResponse());
     }
 }

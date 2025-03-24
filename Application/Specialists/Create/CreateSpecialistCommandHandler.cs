@@ -1,18 +1,16 @@
-﻿using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
+﻿using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Specialists;
 using Domain.Specializations;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Specialists.Create;
 
-public sealed class CreateSpecialistCommandHandler(IApplicationDbContext context) : ICommandHandler<CreateSpecialistCommand>
+public sealed class CreateSpecialistCommandHandler(ISpecialistRepository specialistRepository, ISpecializationRepository specializationRepository) : ICommandHandler<CreateSpecialistCommand>
 {
     public async Task<Result> Handle(CreateSpecialistCommand command, CancellationToken cancellationToken)
     {
-        Specialization? specialization = await context.Specializations
-            .FirstOrDefaultAsync(specialization => specialization.Id == command.SpecializationId, cancellationToken);
+        Specialization? specialization = await specializationRepository.GetByIdAsync(command.SpecializationId, cancellationToken);
 
         if (specialization is null)
         {
@@ -28,8 +26,7 @@ public sealed class CreateSpecialistCommandHandler(IApplicationDbContext context
             City = command.City
         };
 
-        await context.Specialists.AddAsync(specialist, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await specialistRepository.AddAsync(specialist, cancellationToken);
 
         return Result.Success();
     }
