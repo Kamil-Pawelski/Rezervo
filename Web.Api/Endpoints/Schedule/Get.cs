@@ -12,7 +12,7 @@ public sealed class Get : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app) => 
     app.MapGet("schedules/",  async ([FromBody] GetScheduleQuery query, ISender sender, CancellationToken cancellationToken) =>
     {
-        Result<List<ScheduleDateResponse>> result = await sender.Send(query, cancellationToken);
+        Result<List<ScheduleResponse>> result = await sender.Send(query, cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.Error.MapError();
     });
 }

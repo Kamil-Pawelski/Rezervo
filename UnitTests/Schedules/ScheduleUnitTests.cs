@@ -1,4 +1,5 @@
-﻿using Application.Schedules;
+﻿using Application.Abstractions.Repositories;
+using Application.Schedules;
 using Application.Schedules.Create;
 using Application.Schedules.Delete;
 using Application.Schedules.Get;
@@ -9,6 +10,7 @@ using Domain.Schedules;
 using Domain.Slots;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using static Tests.SeedData;
@@ -18,6 +20,8 @@ namespace Tests.Schedules;
 public sealed class ScheduleUnitTests
 {
     private readonly ApplicationDbContext _context;
+    private readonly ISlotRepository _slotRepository;
+    private readonly IScheduleRepository _scheduleRepository;
 
     public ScheduleUnitTests()
     {
@@ -26,6 +30,8 @@ public sealed class ScheduleUnitTests
             .Options;
 
         _context = new ApplicationDbContext(options);
+        _slotRepository = new SlotRepository(_context);
+        _scheduleRepository = new ScheduleRepository(_context);
 
         SeedRoleData(_context);
         SeedUserTestData(_context, new PasswordHasher());
@@ -46,7 +52,7 @@ public sealed class ScheduleUnitTests
             DateOnly.FromDateTime(DateTime.Now.AddDays(2))
         );
 
-        Result<string> result = await new CreateScheduleCommandHandler(_context).Handle(command, CancellationToken.None);
+        Result<string> result = await new CreateScheduleCommandHandler(_scheduleRepository).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -57,7 +63,7 @@ public sealed class ScheduleUnitTests
     {
         var command = new DeleteScheduleCommand(TestScheduleToDeleteId);
 
-        Result<string> result = await new DeleteScheduleCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -68,7 +74,7 @@ public sealed class ScheduleUnitTests
     {
         var command = new DeleteScheduleCommand(Guid.NewGuid());
 
-        Result<string> result = await new DeleteScheduleCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
@@ -80,7 +86,7 @@ public sealed class ScheduleUnitTests
     {
         var command = new DeleteScheduleCommand(TestScheduleToDeleteId);
 
-        Result<string> result = await new DeleteScheduleCommandHandler(_context, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
@@ -92,7 +98,7 @@ public sealed class ScheduleUnitTests
     {
         var query = new GetScheduleQuery(TestSpecialistId);
 
-        Result<List<ScheduleDateResponse>> result = await new GetScheduleQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<List<ScheduleResponse>> result = await new GetScheduleQueryHandler(_scheduleRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.Count.ShouldBeGreaterThan(0);
@@ -103,7 +109,7 @@ public sealed class ScheduleUnitTests
     {
         var query = new GetScheduleQuery(TestSpecialistToDeleteId);
 
-        Result<List<ScheduleDateResponse>> result = await new GetScheduleQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<List<ScheduleResponse>> result = await new GetScheduleQueryHandler(_scheduleRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NoAvailableSlots.Code);
@@ -113,7 +119,7 @@ public sealed class ScheduleUnitTests
     public async Task GetByIdScheduleSlots_ShouldReturnSuccess()
     {
         var query = new GetByIdScheduleSlotsQuery(TestScheduleId);
-        Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_slotRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.Count.ShouldBeGreaterThan(0);
@@ -123,7 +129,7 @@ public sealed class ScheduleUnitTests
     public async Task GetByIdScheduleSlots_ShouldReturnError_NotFoundScheduleSlots()
     {
         var query = new GetByIdScheduleSlotsQuery(TestScheduleToDeleteId);
-        Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_context).Handle(query, CancellationToken.None);
+        Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_slotRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SlotErrors.NotFoundSlots.Code);
@@ -138,7 +144,7 @@ public sealed class ScheduleUnitTests
             new TimeOnly(18, 0)
             );
 
-        Result<string> result = await new PutScheduleCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -152,7 +158,7 @@ public sealed class ScheduleUnitTests
             new TimeOnly(18, 0)
         );
 
-        Result<string> result = await new PutScheduleCommandHandler(_context, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
@@ -167,7 +173,7 @@ public sealed class ScheduleUnitTests
             new TimeOnly(18, 0)
         );
 
-        Result<string> result = await new PutScheduleCommandHandler(_context, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
+        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);

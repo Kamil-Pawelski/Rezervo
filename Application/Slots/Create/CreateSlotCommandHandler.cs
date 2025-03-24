@@ -1,22 +1,17 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Schedules;
 using Domain.Slots;
-using Domain.Specialists;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Slots.Create;
 
-public sealed class CreateSlotCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<CreateSlotCommand, string>
+public sealed class CreateSlotCommandHandler(ISlotRepository slotRepository, IScheduleRepository scheduleRepository, IUserContext userContext) : ICommandHandler<CreateSlotCommand, string>
 {
     public async Task<Result<string>> Handle(CreateSlotCommand command, CancellationToken cancellationToken)
     {
-        Schedule? schedule = await context.Schedules
-            .Include(schedule => schedule.Slots)
-            .Include(s => s.Specialist)
-            .FirstOrDefaultAsync(schedule => schedule.Id == command.ScheduleId, cancellationToken);
+        Schedule? schedule = await scheduleRepository.GetByIdAsync(command.ScheduleId, cancellationToken);
 
         if (schedule is null)
         {
@@ -40,8 +35,7 @@ public sealed class CreateSlotCommandHandler(IApplicationDbContext context, IUse
             Status = Status.Available
         };
 
-        await context.Slots.AddAsync(slot, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await slotRepository.AddAsync(slot, cancellationToken);
 
         return Result.Success("Slot created successfully.");
     }

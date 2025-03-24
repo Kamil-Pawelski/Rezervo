@@ -82,7 +82,7 @@ public sealed class ScheduleEndpointTests(CustomWebApplicationFactory<Program> f
         HttpResponseMessage response = await _client.SendAsync(request);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        List<ScheduleDateResponse>? result = await response.Content.ReadFromJsonAsync<List<ScheduleDateResponse>>();
+        List<ScheduleResponse>? result = await response.Content.ReadFromJsonAsync<List<ScheduleResponse>>();
         result?.Count.ShouldBeGreaterThan(0);
     }
 

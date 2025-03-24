@@ -6,6 +6,7 @@ using Domain.Schedules;
 using Domain.Slots;
 using Infrastructure.Authentication;
 using Infrastructure.Database;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using static Tests.SeedData;
@@ -16,7 +17,8 @@ public sealed class SlotUnitTests
 {
     private readonly ApplicationDbContext _context;
     private readonly TestUserContext _userContext;
-
+    private readonly SlotRepository _slotRepository;
+    private readonly ScheduleRepository _scheduleRepository;
 
     public SlotUnitTests()
     {
@@ -26,6 +28,8 @@ public sealed class SlotUnitTests
 
         _context = new ApplicationDbContext(options);
         _userContext = new TestUserContext();
+        _slotRepository = new SlotRepository(_context);
+        _scheduleRepository = new ScheduleRepository(_context);
 
         SeedRoleData(_context);
         SeedUserTestData(_context, new PasswordHasher());
@@ -44,7 +48,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -59,7 +63,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SlotErrors.SlotAlreadyExist(new TimeOnly(9, 0)).Code);
@@ -75,7 +79,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
@@ -91,7 +95,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = Guid.NewGuid();
 
-        Result<string> result = await new CreateSlotCommandHandler(_context, _userContext).Handle(command, CancellationToken.None);
+        Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(CommonErrors.Unauthorized.Code);
@@ -104,7 +108,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        var handler = new DeleteSlotCommandHandler(_context, _userContext);
+        var handler = new DeleteSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
@@ -117,7 +121,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        var handler = new DeleteSlotCommandHandler(_context, _userContext);
+        var handler = new DeleteSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
@@ -131,7 +135,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = Guid.NewGuid();
 
-        var handler = new DeleteSlotCommandHandler(_context, _userContext);
+        var handler = new DeleteSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
@@ -148,7 +152,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        var handler = new PutSlotCommandHandler(_context, _userContext);
+        var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
@@ -167,7 +171,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        var handler = new PutSlotCommandHandler(_context, _userContext);
+        var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
@@ -184,7 +188,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = Guid.NewGuid();
 
-        var handler = new PutSlotCommandHandler(_context, _userContext);
+        var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
@@ -201,7 +205,7 @@ public sealed class SlotUnitTests
 
         _userContext.UserId = TestUserId;
 
-        var handler = new PutSlotCommandHandler(_context, _userContext);
+        var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();

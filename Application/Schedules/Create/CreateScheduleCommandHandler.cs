@@ -1,11 +1,11 @@
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Schedules;
 
 namespace Application.Schedules.Create;
 
-public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) : ICommandHandler<CreateScheduleCommand, string>
+public sealed class CreateScheduleCommandHandler(IScheduleRepository scheduleRepository) : ICommandHandler<CreateScheduleCommand, string>
 {
     public async Task<Result<string>> Handle(CreateScheduleCommand command, CancellationToken cancellationToken)
     {
@@ -20,8 +20,7 @@ public sealed class CreateScheduleCommandHandler(IApplicationDbContext context) 
 
         schedule.GenerateSlots(command.SlotDuration);
 
-        await context.Schedules.AddAsync(schedule, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await scheduleRepository.AddAsync(schedule, cancellationToken);    
 
         return Result.Success($"Created schedule with {schedule.Slots.Count} slots.");
     }

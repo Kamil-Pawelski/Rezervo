@@ -1,47 +1,41 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 using Domain.Schedules;
 using Domain.Slots;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Schedules.Put;
 
-public sealed class PutScheduleCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<PutScheduleCommand, string>
+public sealed class PutScheduleCommandHandler(IScheduleRepository scheduleRepository, ISlotRepository slotRepository, IUserContext userContext) : ICommandHandler<PutScheduleCommand, string>
 {
     public async Task<Result<string>> Handle(PutScheduleCommand command, CancellationToken cancellationToken)
     {
-        var scheduleData = await context.Schedules
-        .Where(schedule => schedule.Id == command.Id)
-        .Select(schedule => new
-        {
-            Schedule = schedule,
-            SpecialistUserId = schedule.Specialist!.UserId
-        })
-        .FirstOrDefaultAsync(cancellationToken);
+        Schedule? schedule = await scheduleRepository.GetByIdAsync(command.Id, cancellationToken);
 
-        if (scheduleData is null)
+        if (schedule is null)
         {
             return Result.Failure<string>(ScheduleErrors.NotFoundSchedule);
         }
 
-        if (scheduleData.SpecialistUserId != userContext.UserId)
+        if (schedule.Specialist!.UserId != userContext.UserId)
         {
             return Result.Failure<string>(CommonErrors.Unauthorized);
         }
 
-        List<Slot> invalidSlots = await context.Slots
-            .Where(slot => slot.ScheduleId == scheduleData.Schedule.Id &&
-                           (slot.StartTime < command.StartTime || slot.StartTime > command.EndTime))
-            .ToListAsync(cancellationToken);
+        List<Slot> scheduleSlots = await slotRepository.GetScheduleSlotsAsync(schedule.Id, cancellationToken);
 
-        context.Slots.RemoveRange(invalidSlots);
+        var slotsToRemove = scheduleSlots
+          .Where(slot => slot.StartTime < command.StartTime || slot.StartTime > command.EndTime)
+          .ToList();
 
-        scheduleData.Schedule.StartTime = command.StartTime;
-        scheduleData.Schedule.EndTime = command.EndTime;
+        
+        await slotRepository.DeleteSlotsAsync(slotsToRemove, cancellationToken);
 
-        await context.SaveChangesAsync(cancellationToken);
-        return Result.Success($"Schedule updated successfully. New work time {scheduleData.Schedule.StartTime}-{scheduleData.Schedule.EndTime}.");
+        schedule.StartTime = command.StartTime;
+        schedule.EndTime = command.EndTime;
+        await scheduleRepository.UpdateAsync(schedule, cancellationToken);
+
+        return Result.Success($"Schedule updated successfully. New work time {schedule.StartTime}-{schedule.EndTime}.");
     }
 }
