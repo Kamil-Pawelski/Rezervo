@@ -1,10 +1,11 @@
 ﻿using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Abstractions.Repositories;
 using Domain.Common;
 
 namespace Application.Specializations.Create;
 
-public sealed class CreateSpecializationCommandHandler(IApplicationDbContext context) : ICommandHandler<CreateSpecializationCommand, string>
+public sealed class CreateSpecializationCommandHandler(ISpecializationRepository specializationRepository) : ICommandHandler<CreateSpecializationCommand, string>
 {
     public async Task<Result<string>> Handle(CreateSpecializationCommand command, CancellationToken cancellationToken)
     {
@@ -13,8 +14,7 @@ public sealed class CreateSpecializationCommandHandler(IApplicationDbContext con
             Name = command.Name
         };
 
-        await context.Specializations.AddAsync(specialization, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await specializationRepository.AddAsync(specialization, cancellationToken);
 
         return Result.Success("Specialization created.");
     }
