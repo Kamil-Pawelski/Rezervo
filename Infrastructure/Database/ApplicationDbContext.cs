@@ -21,121 +21,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(user => user.Id);
-            entity.HasIndex(user => user.Email).IsUnique();
-            entity.HasIndex(user => user.Username).IsUnique();
-            entity.Property(user => user.Email).IsRequired().HasMaxLength(64);
-            entity.Property(user => user.Username).IsRequired().HasMaxLength(32);
-            entity.Property(user => user.FirstName).IsRequired().HasMaxLength(32);
-            entity.Property(user => user.LastName).IsRequired().HasMaxLength(32);
-            entity.Property(user => user.PasswordHash).IsRequired().HasMaxLength(255);
-        });
-
-
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(role => role.Id);
-            entity.HasIndex(role => role.Name).IsUnique();
-            entity.Property(role => role.Name).IsRequired().HasMaxLength(32);
-        });
-
-        modelBuilder.Entity<UserRole>(entity =>
-        {
-            entity.HasKey(userRole => new {userRole.RoleId, userRole.UserId});
-
-            entity.HasOne(userRole => userRole.User)
-                .WithMany(user => user.UserRoles)
-                .HasForeignKey(userRole => userRole.UserId);
-
-            entity.HasOne(userRole => userRole.Role)
-                .WithMany(role => role.UserRoles)
-                .HasForeignKey(userRole => userRole.RoleId);
-        });
-
-        modelBuilder.Entity<Specialist>(entity =>
-        {
-            entity.HasKey(specialist => specialist.Id);
-            entity.HasIndex(specialist => specialist.UserId).IsUnique();
-            entity.Property(specialist => specialist.UserId).IsRequired();
-            entity.Property(specialist => specialist.SpecializationId).IsRequired();
-            entity.Property(specialist => specialist.PhoneNumber).IsRequired();
-            entity.Property(specialist => specialist.City).IsRequired();
-
-            entity.HasOne(specialist => specialist.Specialization)
-                .WithMany(specialization => specialization.Specialists)
-                .HasForeignKey(specialist => specialist.SpecializationId)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-
-            entity.HasOne(specialist => specialist.User)
-                .WithMany(user => user.Specialists)
-                .HasForeignKey(specialist => specialist.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        modelBuilder.Entity<Specialization>(entity =>
-        {
-            entity.HasKey(specialization => specialization.Id);
-            entity.HasIndex(specialization => specialization.Name).IsUnique();
-            entity.Property(specialization => specialization.Name).IsRequired().HasMaxLength(32);
-        });
-
-        modelBuilder.Entity<Schedule>(entity =>
-        {
-            entity.HasKey(schedule => schedule.Id);
-            entity.Property(schedule => schedule.SpecialistId).IsRequired();
-            entity.Property(schedule => schedule.StartTime).IsRequired();
-            entity.Property(schedule => schedule.EndTime).IsRequired();
-            entity.Property(schedule => schedule.Date).IsRequired();
-
-            entity.HasOne(schedule => schedule.Specialist)
-                .WithMany(specialist => specialist.Schedules)
-                .HasForeignKey(schedule => schedule.SpecialistId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Schedule>()
-                .HasMany(s => s.Slots)
-                .WithOne(s => s.Schedule)
-                .HasForeignKey(s => s.ScheduleId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<Slot>(entity =>
-        {
-            entity.Property(slot => slot.ScheduleId).IsRequired();
-            entity.Property(slot => slot.StartTime).IsRequired();
-            entity.Property(slot => slot.Status).IsRequired();
-
-            entity.HasMany(slot => slot.Bookings)
-                .WithOne(booking => booking.Slot)
-                .HasForeignKey(booking => booking.SlotId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-        
-
-        modelBuilder.Entity<Booking>(entity =>
-        {
-            entity.HasKey(booking => booking.Id);
-            entity.HasIndex(booking => booking.SlotId).IsUnique();
-            entity.Property(booking => booking.UserId).IsRequired();
-            entity.Property(booking => booking.SlotId).IsRequired();
-            entity.Property(booking => booking.CreatedDateTime).IsRequired();
-
-            entity.HasOne(booking => booking.User)
-                .WithMany(user => user.Bookings)
-                .HasForeignKey(booking => booking.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-
-            entity.HasOne(booking => booking.Slot)
-                .WithMany(slot => slot.Bookings)
-                .HasForeignKey(booking => booking.SlotId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
+        base.OnModelCreating(modelBuilder);       
 
         modelBuilder.Entity<Role>()
             .HasData(
@@ -155,6 +41,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 new Specialization { Id = new Guid("9b6f2c4d-7a3e-4e99-8d1a-5c7a3b2d6f4e"), Name = SpecializationNames.Masseur }
             );
 
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await base.SaveChangesAsync(cancellationToken);

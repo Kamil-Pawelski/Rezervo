@@ -30,7 +30,7 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddSingleton<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>()); 
+        services.AddScoped<IApplicationDbContext>(serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>()); 
 
         return services;
     }
@@ -63,14 +63,14 @@ public static class DependencyInjection
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddSingleton<IUserRepository, UserRepository>();
-        services.AddSingleton<IRoleRepository, RoleRepository>();
-        services.AddSingleton<IUserRoleRepository, UserRoleRepository>();
-        services.AddSingleton<ISpecializationRepository, SpecializationRepository>();
-        services.AddSingleton<ISpecialistRepository, SpecialistRepository>();
-        services.AddSingleton<ISlotRepository, SlotRepository>();
-        services.AddSingleton<IScheduleRepository, ScheduleRepository>();
-        services.AddSingleton<IBookingRepository, BookingRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        services.AddScoped<ISpecializationRepository, SpecializationRepository>();
+        services.AddScoped<ISpecialistRepository, SpecialistRepository>();
+        services.AddScoped<ISlotRepository, SlotRepository>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
 
         return services;
     }       
