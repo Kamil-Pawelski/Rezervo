@@ -6,16 +6,10 @@ using Domain.Slots;
 namespace Domain.Schedules;
 public sealed class Schedule
 {
-    [Key]
-    [Required]
     public Guid Id { get; set; }
-    [Required]
     public Guid SpecialistId { get; set; }
-    [Required]
     public TimeOnly StartTime { get; set; }
-    [Required]
     public TimeOnly EndTime { get; set; }
-    [Required]
     public DateOnly Date { get; set; }
 
     public Specialist? Specialist { get; set; }

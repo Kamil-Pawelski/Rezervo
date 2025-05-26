@@ -12,9 +12,5 @@ internal sealed class SlotConfiguration : IEntityTypeConfiguration<Slot>
         builder.Property(slot => slot.ScheduleId).IsRequired();
         builder.Property(slot => slot.StartTime).IsRequired();
         builder.Property(slot => slot.Status).IsRequired();
-        builder.HasMany(slot => slot.Bookings)
-            .WithOne(booking => booking.Slot)
-            .HasForeignKey(booking => booking.SlotId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

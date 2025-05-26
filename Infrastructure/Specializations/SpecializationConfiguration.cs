@@ -9,7 +9,11 @@ internal sealed class SpecializationConfiguration : IEntityTypeConfiguration<Spe
     public void Configure(EntityTypeBuilder<Specialization> builder)
     {
         builder.HasKey(specialization => specialization.Id);
-        builder.HasIndex(specialization => specialization.Name).IsUnique();
-        builder.Property(specialization => specialization.Name).IsRequired().HasMaxLength(32);
+
+        builder.HasIndex(specialization => specialization.Name)
+            .IsUnique();
+
+        builder.Property(specialization => specialization.Name)
+            .IsRequired();
     }
 }
