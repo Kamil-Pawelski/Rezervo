@@ -3,26 +3,23 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Application.Slots.Create;
-using Application.Slots.Delete;
 using Application.Slots.Put;
 using Application.Users.Login;
-using Domain.Slots;
-using Microsoft.EntityFrameworkCore;
 using Shouldly;
-using Tests.Response;
+using Tests.IntegrationTestsConfiguration;
+using Tests.Seeder;
 using Web.Api;
 
 namespace Tests.Slots;
 
 
 [Collection("Factory")]
-public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> factory)
+public sealed class SlotEndpointsTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
     private async Task<string> GenerateSpecialistToken()
     {
-        var command = new LoginUserCommand(SeedData.TestUsername, SeedData.TestPassword);
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        var command = new LoginUserCommand(SeedUser.TestUsername, SeedUser.TestPassword);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
         return json!.Token;
@@ -33,7 +30,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
     {
 
         var command = new CreateSlotCommand(
-            SeedData.TestScheduleId, 
+            SeedScheduleAndSlots.TestScheduleId, 
             new TimeOnly(10, 0)
             );
 
@@ -44,7 +41,7 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
 
@@ -56,11 +53,11 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
     public async Task DeleteSlot_ShouldReturnSuccess()
     {
 
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"slots/{SeedData.TestSlotToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"slots/{SeedScheduleAndSlots.TestSlotToDeleteId}");
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
 
@@ -73,18 +70,18 @@ public sealed class SlotEndpointsTests(CustomWebApplicationFactory<Program> fact
     public async Task PutSlot_ShouldReturnSuccess()
     {
         var command = new PutSlotCommand(
-            SeedData.TestSlotId,
+            SeedScheduleAndSlots.TestSlotId,
             new TimeOnly(14, 0)
         );
 
-        var request = new HttpRequestMessage(HttpMethod.Put, $"slots/{SeedData.TestSlotId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"slots/{SeedScheduleAndSlots.TestSlotId}")
         {
             Content = JsonContent.Create(command)
         };
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
 

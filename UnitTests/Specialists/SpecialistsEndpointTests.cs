@@ -7,20 +7,19 @@ using Application.Specialists.Create;
 using Application.Specialists.Put;
 using Application.Users.Login;
 using Shouldly;
+using Tests.IntegrationTestsConfiguration;
 using Tests.Response;
-using Web.Api;
+using Tests.Seeder;
 
 namespace Tests.Specialists;
 
 [Collection("Factory")]
-public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory<Program> factory)
+public sealed partial class SpecialistsEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     private async Task<string> GenerateSpecialistToken()
     {
-        var command = new LoginUserCommand(SeedData.TestUsername, SeedData.TestPassword);
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        var command = new LoginUserCommand(SeedUser.TestUsername, SeedUser.TestPassword);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
         return json!.Token;
@@ -28,8 +27,8 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
 
     private async Task<string> GenerateAdminToken()
     {
-        var command = new LoginUserCommand(SeedData.TestAdminUsername, SeedData.TestPassword);
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        var command = new LoginUserCommand(SeedUser.TestAdminUsername, SeedUser.TestPassword);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
         return json!.Token;
@@ -38,7 +37,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     [Fact]
     public async Task GetSpecialistsEndpoint_ShouldReturnSpecialists()
     {
-        HttpResponseMessage response = await _client.GetAsync("specialists");
+        HttpResponseMessage response = await Client.GetAsync("specialists");
         List<SpecialistsResponse>? result = await response.Content.ReadFromJsonAsync <List<SpecialistsResponse>>();
 
         response.IsSuccessStatusCode.ShouldBeTrue();
@@ -50,8 +49,8 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     public async Task CreateSpecialistsEndpoint_ShouldReturnOk()
     {
         var command = new CreateSpecialistCommand(
-            SeedData.TestUserId2,
-            SeedData.TestSpecializationId,
+            SeedUser.TestUserId2,
+            SeedSpecialist.TestSpecializationId,
             "123456789",
             "Test Description",
             "Warsaw"
@@ -64,24 +63,24 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         response.IsSuccessStatusCode.ShouldBeTrue();
     }
 
     [Fact]
     public async Task GetByIdSpecialistEndpoint_ShouldReturnSpecialist()
     {
-        HttpResponseMessage response = await _client.GetAsync($"specialists/{SeedData.TestSpecialistId}");
+        HttpResponseMessage response = await Client.GetAsync($"specialists/{SeedSpecialist.TestSpecialistId}");
         SpecialistsResponse? result = await response.Content.ReadFromJsonAsync<SpecialistsResponse>();
         response.IsSuccessStatusCode.ShouldBeTrue();
         result.ShouldNotBeNull();
-        result!.Id.ShouldBe(SeedData.TestSpecialistId);
+        result!.Id.ShouldBe(SeedSpecialist.TestSpecialistId);
     }
 
     [Fact]
     public async Task GetByIdSpecialistEndpoint_ShouldReturnNotFound()
     {
-        HttpResponseMessage response = await _client.GetAsync($"specialists/{Guid.NewGuid()}");
+        HttpResponseMessage response = await Client.GetAsync($"specialists/{Guid.NewGuid()}");
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
@@ -90,21 +89,21 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     public async Task PutSpecialistEndpoint_ShouldReturnOk()
     {
         var command = new PutSpecialistCommand(
-            SeedData.TestSpecialistId,
-            SeedData.TestUserId,
+            SeedSpecialist.TestSpecialistId,
+            SeedUser.TestUserId,
             "123456789",
             "Test Description",
             "London"
         );
 
-        var request = new HttpRequestMessage(HttpMethod.Put, $"specialists/{SeedData.TestSpecialistId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"specialists/{SeedSpecialist.TestSpecialistId}")
         {
             Content = JsonContent.Create(command)
         };
 
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         SpecialistsResponse? result = await response.Content.ReadFromJsonAsync<SpecialistsResponse>();
 
         response.IsSuccessStatusCode.ShouldBeTrue();
@@ -117,7 +116,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     {
         var command = new PutSpecialistCommand(
             Guid.NewGuid(),
-            SeedData.TestUserId,
+            SeedUser.TestUserId,
             "123456789",
             "Test Description",
             "London"
@@ -130,7 +129,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
 
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -155,7 +154,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -164,22 +163,22 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     [Fact]
     public async Task DeleteSpecialistEndpoint_ShouldReturnOk()
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"specialists/{SeedData.TestSpecialistToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"specialists/{SeedSpecialist.TestSpecialistToDeleteId}");
         string token = await GenerateAdminToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         response.IsSuccessStatusCode.ShouldBeTrue();
     }
 
     [Fact]
     public async Task DeleteSpecialistEndpoint_WrongRole_ShouldReturnForbidden()
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"specialists/{SeedData.TestSpecialistToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"specialists/{SeedSpecialist.TestSpecialistToDeleteId}");
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
@@ -191,7 +190,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
         string token = await GenerateAdminToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
@@ -199,8 +198,8 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     [Fact]
     public async Task GetBySpecializationSpecialistsEndpoint_ShouldReturnSpecialists()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"specialists/specialization/{SeedData.TestSpecializationId}");
-        HttpResponseMessage response = await _client.SendAsync(request);
+        var request = new HttpRequestMessage(HttpMethod.Get, $"specialists/specialization/{SeedSpecialist.TestSpecializationId}");
+        HttpResponseMessage response = await Client.SendAsync(request);
         List<SpecialistsResponse>? result = await response.Content.ReadFromJsonAsync<List<SpecialistsResponse>>();
 
         response.IsSuccessStatusCode.ShouldBeTrue();
@@ -211,7 +210,7 @@ public sealed partial class SpecialistsEndpointTests(CustomWebApplicationFactory
     public async Task GetBySpecializationSpecialistsEndpoint_ShouldReturnNotFound()
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"specialists/specialization/{Guid.NewGuid()}");
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.IsSuccessStatusCode.ShouldBeFalse();
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);

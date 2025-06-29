@@ -27,12 +27,7 @@ internal sealed class ValidationBehavior<TRequest, TResponse>(
 
             MethodInfo? failureMethod = typeof(Result<>)
                 .MakeGenericType(resultType)
-                .GetMethod(nameof(Result<object>.Failure));
-
-            if (failureMethod is null)
-            {
-                throw new ValidationException(validationFailures);
-            }
+                .GetMethod(nameof(Result<object>.Failure)) ?? throw new ValidationException(validationFailures);
 
             var error = Error.Validation(
                 "ValidationError",

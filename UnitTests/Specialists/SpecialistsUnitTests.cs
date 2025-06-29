@@ -13,7 +13,8 @@ using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
-using static Tests.SeedData;
+using Tests.Data;
+using Tests.Seeder;
 
 namespace Tests.Specialists;
 
@@ -33,9 +34,9 @@ public sealed class SpecialistsUnitTests
         _specialistRepository = new SpecialistRepository(_context);
         _specializationRepository = new SpecializationRepository(_context);
 
-        SeedRoleData(_context);
-        SeedUserTestData(_context, new PasswordHasher());
-        SeedSpecialistTestData(_context);
+        SeedRole.Seed(_context);
+        SeedUser.Seed(_context, new PasswordHasher());
+        SeedSpecialist.Seed(_context);
     }  
 
     [Fact]
@@ -52,7 +53,7 @@ public sealed class SpecialistsUnitTests
     [Fact]
     public async Task GetByIdSpecialistTask_ShouldReturnSpecialist()
     {
-        var query = new GetByIdSpecialistQuery(TestSpecialistId);
+        var query = new GetByIdSpecialistQuery(SeedSpecialist.TestSpecialistId);
 
         Result<SpecialistsResponse> result = await new GetByIdSpecialistQueryHandler(_specialistRepository).Handle(query, CancellationToken.None);
 
@@ -74,8 +75,8 @@ public sealed class SpecialistsUnitTests
     public async Task CreateSpecialistTest_ShouldReturnOk()
     {
         var command = new CreateSpecialistCommand(
-            TestUserId,
-            TestSpecializationId,
+            SeedUser.TestUserId,
+            SeedSpecialist.TestSpecializationId,
             "Test Description",
             "123456789",
             "Warsaw"
@@ -90,8 +91,8 @@ public sealed class SpecialistsUnitTests
     public async Task PutSpecialistTest_ShouldReturnForbidden()
     {
         var command = new PutSpecialistCommand(
-            TestUserId,
-            TestSpecializationId,
+            SeedUser.TestUserId,
+            SeedSpecialist.TestSpecializationId,
             "Test Description",
             "123456789",
             "Cracow"
@@ -108,14 +109,14 @@ public sealed class SpecialistsUnitTests
     public async Task PutSpecialistTest_ShouldReturnOk()
     {
         var command = new PutSpecialistCommand(
-            TestSpecialistId,
-            TestUserId,
+            SeedSpecialist.TestSpecialistId,
+            SeedUser.TestUserId,
             "Test Description",
             "123456789",
             "Cracow"
         );
 
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.City.ShouldBe("Cracow");
@@ -126,13 +127,13 @@ public sealed class SpecialistsUnitTests
     {
         var command = new PutSpecialistCommand(
             Guid.NewGuid(),
-            TestUserId,
+            SeedUser.TestUserId,
             "Test Description",
             "123456789",
             "Cracow"
         );
 
-        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedData.TestUserId }).Handle(command, CancellationToken.None);
+        Result<SpecialistsResponse> result = await new PutSpecialistCommandHandler(_specialistRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(SpecialistErrors.NotFoundSpecialist.Code);
     }
@@ -150,7 +151,7 @@ public sealed class SpecialistsUnitTests
     [Fact]
     public async Task DeleteSpecialistTest_ShouldReturnOk()
     {
-        var command = new DeleteSpecialistCommand(TestSpecialistToDeleteId);
+        var command = new DeleteSpecialistCommand(SeedSpecialist.TestSpecialistToDeleteId);
         Result<string> result = await new DeleteSpecialistCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
     }
@@ -158,7 +159,7 @@ public sealed class SpecialistsUnitTests
     [Fact]
     public async Task GetBySpecialistsSpecialistTest_ShouldReturnOk()
     {
-        var command = new GetBySpecializationSpecialistsCommand(TestSpecializationId);
+        var command = new GetBySpecializationSpecialistsCommand(SeedSpecialist.TestSpecializationId);
         Result<List<SpecialistsResponse>> result = await new GetBySpecializationSpecialistsCommandHandler(_specialistRepository).Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();

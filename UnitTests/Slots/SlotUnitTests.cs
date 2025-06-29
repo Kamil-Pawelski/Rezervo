@@ -9,7 +9,8 @@ using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
-using static Tests.SeedData;
+using Tests.Seeder;
+using static Tests.Seeder.SeedData;
 
 namespace Tests.Slots;
 
@@ -31,22 +32,18 @@ public sealed class SlotUnitTests
         _slotRepository = new SlotRepository(_context);
         _scheduleRepository = new ScheduleRepository(_context);
 
-        SeedRoleData(_context);
-        SeedUserTestData(_context, new PasswordHasher());
-        SeedSpecialistTestData(_context);
-        SeedScheduleAndSlotsTestData(_context);
-        SeedBookingData(_context);
+        SeedData.Initialize(_context);
     }
 
     [Fact]
     public async Task CreateSlot_ShouldReturnSuccess()
     {
         var command = new CreateSlotCommand(
-            TestScheduleId,
+            SeedScheduleAndSlots.TestScheduleId,
             new TimeOnly(8, 30)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
@@ -57,11 +54,11 @@ public sealed class SlotUnitTests
     public async Task CreateSlot_ShouldReturnError_SlotAlreadyExist()
     {
         var command = new CreateSlotCommand(
-            TestScheduleId,
+            SeedScheduleAndSlots.TestScheduleId,
             new TimeOnly(9, 0)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
@@ -77,7 +74,7 @@ public sealed class SlotUnitTests
             new TimeOnly(10, 0)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         Result<string> result = await new CreateSlotCommandHandler(_slotRepository, _scheduleRepository, _userContext).Handle(command, CancellationToken.None);
 
@@ -89,7 +86,7 @@ public sealed class SlotUnitTests
     public async Task CreateSlot_ShouldReturnError_Unauthorized()
     {
         var command = new CreateSlotCommand(
-            TestScheduleId,
+            SeedScheduleAndSlots.TestScheduleId,
             new TimeOnly(10, 0)
         );
 
@@ -104,9 +101,9 @@ public sealed class SlotUnitTests
     [Fact]
     public async Task DeleteSlot_ShouldReturnSuccess()
     {
-        var command = new DeleteSlotCommand(TestSlotToDeleteId);
+        var command = new DeleteSlotCommand(SeedScheduleAndSlots.TestSlotToDeleteId);
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         var handler = new DeleteSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
@@ -119,7 +116,7 @@ public sealed class SlotUnitTests
     {
         var command = new DeleteSlotCommand(Guid.NewGuid());
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         var handler = new DeleteSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
@@ -131,7 +128,7 @@ public sealed class SlotUnitTests
     [Fact]
     public async Task DeleteSlot_ShouldReturnError_Unauthorized()
     {
-        var command = new DeleteSlotCommand(TestSlotId);
+        var command = new DeleteSlotCommand(SeedScheduleAndSlots.TestSlotId);
 
         _userContext.UserId = Guid.NewGuid();
 
@@ -146,17 +143,17 @@ public sealed class SlotUnitTests
     public async Task PutSlot_ShouldReturnSuccess()
     {
         var command = new PutSlotCommand(
-            TestSlotId,
+            SeedScheduleAndSlots.TestSlotId,
             new TimeOnly(12, 0)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        Slot? slot = await _context.Slots.FindAsync(TestSlotId);
+        Slot? slot = await _context.Slots.FindAsync(SeedScheduleAndSlots.TestSlotId);
         slot.ShouldNotBeNull();
         slot.StartTime.ShouldBe(new TimeOnly(12, 0));
     }
@@ -169,7 +166,7 @@ public sealed class SlotUnitTests
             new TimeOnly(12, 0)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);
@@ -182,7 +179,7 @@ public sealed class SlotUnitTests
     public async Task PutSlot_ShouldReturnError_Unauthorized()
     {
         var command = new PutSlotCommand(
-            TestSlotId,
+            SeedScheduleAndSlots.TestSlotId,
             new TimeOnly(12, 0)
         );
 
@@ -199,11 +196,11 @@ public sealed class SlotUnitTests
     public async Task PutSlot_ShouldReturnError_InvalidTimeRange()
     {
         var command = new PutSlotCommand(
-            TestSlotId,
+            SeedScheduleAndSlots.TestSlotId,
             new TimeOnly(7, 0)
         );
 
-        _userContext.UserId = TestUserId;
+        _userContext.UserId = SeedUser.TestUserId;
 
         var handler = new PutSlotCommandHandler(_slotRepository, _userContext);
         Result<string> result = await handler.Handle(command, CancellationToken.None);

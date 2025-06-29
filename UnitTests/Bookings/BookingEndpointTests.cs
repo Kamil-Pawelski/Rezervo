@@ -5,21 +5,19 @@ using System.Text.Json;
 using Application.Bookings.Create;
 using Application.Users.Login;
 using Shouldly;
+using Tests.IntegrationTestsConfiguration;
 using Tests.Response;
-using Web.Api;
+using Tests.Seeder;
 
 namespace Tests.Bookings;
 
 [Collection("Factory")]
-public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> factory)
+public sealed class BookingEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
-
     private async Task<string> GenerateUserToken()
     {
-        var command = new LoginUserCommand(SeedData.TestUsername, SeedData.TestPassword);
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        var command = new LoginUserCommand(SeedUser.TestUsername, SeedUser.TestPassword);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
         TokenResponse? json = JsonSerializer.Deserialize<TokenResponse>(result);
         return json!.Token;
@@ -30,7 +28,7 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
     {
         var command = new CreateBookingCommand
         (
-           SeedData.TestSlotForBookingId
+           SeedScheduleAndSlots.TestSlotForBookingId
         );
 
         var request = new HttpRequestMessage(HttpMethod.Post, "bookings")
@@ -41,7 +39,7 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
         string token = await GenerateUserToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -49,12 +47,12 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
     [Fact]
     public async Task DeleteBooking_ShouldReturnSuccess()
     {        
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"bookings/{SeedData.TestBookingToDeleteId}");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"bookings/{SeedBooking.TestBookingToDeleteId}");
         
         string token = await GenerateUserToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
         
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -66,7 +64,7 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
 
         string token = await GenerateUserToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
@@ -74,11 +72,11 @@ public sealed class BookingEndpointTests(CustomWebApplicationFactory<Program> fa
     [Fact]
     public async Task GetBookingById_ShouldReturnSuccess()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"bookings/{SeedData.TestBookingId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"bookings/{SeedBooking.TestBookingId}");
 
         string token = await GenerateUserToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await _client.SendAsync(request);
+        HttpResponseMessage response = await Client.SendAsync(request);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }

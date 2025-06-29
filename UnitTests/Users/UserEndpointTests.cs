@@ -2,15 +2,14 @@
 using Application.Users.Login;
 using Application.Users.Register;
 using Shouldly;
-using Web.Api;
 using System.Net;
+using Tests.IntegrationTestsConfiguration;
 
 namespace Tests.Users;
 
 [Collection("Factory")]
-public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> factory)
+public sealed class UserEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task RegisterEndpoint_ShouldReturnOk()
@@ -21,10 +20,10 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "Endpoint",
             "Test",
             "Password123!",
-            SeedData.TestRoleId
+            SeedUser.TestRoleId
         );
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/register", command);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/register", command);
 
         response.IsSuccessStatusCode.ShouldBeTrue();
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -38,7 +37,7 @@ public sealed class UserEndpointTests(CustomWebApplicationFactory<Program> facto
             "Password123!"
         );
 
-        HttpResponseMessage response = await _client.PostAsJsonAsync("users/login", command);
+        HttpResponseMessage response = await Client.PostAsJsonAsync("users/login", command);
         string result = await response.Content.ReadAsStringAsync();
 
         response.IsSuccessStatusCode.ShouldBeTrue();

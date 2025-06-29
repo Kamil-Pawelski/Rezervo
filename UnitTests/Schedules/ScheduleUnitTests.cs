@@ -13,7 +13,8 @@ using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
-using static Tests.SeedData;
+using Tests.Seeder;
+using static Tests.Seeder.SeedData;
 
 namespace Tests.Schedules;
 
@@ -33,11 +34,7 @@ public sealed class ScheduleUnitTests
         _slotRepository = new SlotRepository(_context);
         _scheduleRepository = new ScheduleRepository(_context);
 
-        SeedRoleData(_context);
-        SeedUserTestData(_context, new PasswordHasher());
-        SeedSpecialistTestData(_context);
-        SeedScheduleAndSlotsTestData(_context);
-        SeedBookingData(_context);
+       SeedData.Initialize(_context);
     }
     
 
@@ -45,7 +42,7 @@ public sealed class ScheduleUnitTests
     public async Task CreateSchedule_ShouldReturnSuccess()
     {
         var command = new CreateScheduleCommand(
-            TestSpecialistId,
+            SeedSpecialist.TestSpecialistId,
             new TimeOnly(8, 0),
             new TimeOnly(16, 0),
             30,
@@ -61,9 +58,9 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task DeleteSchedule_ShouldReturnSuccess()
     {
-        var command = new DeleteScheduleCommand(TestScheduleToDeleteId);
+        var command = new DeleteScheduleCommand(SeedScheduleAndSlots.TestScheduleToDeleteId);
 
-        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -74,7 +71,7 @@ public sealed class ScheduleUnitTests
     {
         var command = new DeleteScheduleCommand(Guid.NewGuid());
 
-        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
@@ -84,7 +81,7 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task DeleteSchedule_ShouldReturnError_Unauthorized()
     {
-        var command = new DeleteScheduleCommand(TestScheduleToDeleteId);
+        var command = new DeleteScheduleCommand(SeedScheduleAndSlots.TestScheduleToDeleteId);
 
         Result<string> result = await new DeleteScheduleCommandHandler(_scheduleRepository, new TestUserContext { UserId = Guid.NewGuid() }).Handle(command, CancellationToken.None);
 
@@ -96,7 +93,7 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task GetSchedule_ShouldReturnSuccess()
     {
-        var query = new GetScheduleQuery(TestSpecialistId);
+        var query = new GetScheduleQuery(SeedSpecialist.TestSpecialistId);
 
         Result<List<ScheduleResponse>> result = await new GetScheduleQueryHandler(_scheduleRepository).Handle(query, CancellationToken.None);
 
@@ -107,7 +104,7 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task GetSchedule_ShouldReturnError_NotFoundSchedule()
     {
-        var query = new GetScheduleQuery(TestSpecialistToDeleteId);
+        var query = new GetScheduleQuery(SeedSpecialist.TestSpecialistToDeleteId);
 
         Result<List<ScheduleResponse>> result = await new GetScheduleQueryHandler(_scheduleRepository).Handle(query, CancellationToken.None);
 
@@ -118,7 +115,7 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task GetByIdScheduleSlots_ShouldReturnSuccess()
     {
-        var query = new GetByIdScheduleSlotsQuery(TestScheduleId);
+        var query = new GetByIdScheduleSlotsQuery(SeedScheduleAndSlots.TestScheduleId);
         Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_slotRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
@@ -128,7 +125,7 @@ public sealed class ScheduleUnitTests
     [Fact]
     public async Task GetByIdScheduleSlots_ShouldReturnError_NotFoundScheduleSlots()
     {
-        var query = new GetByIdScheduleSlotsQuery(TestScheduleToDeleteId);
+        var query = new GetByIdScheduleSlotsQuery(SeedScheduleAndSlots.TestScheduleToDeleteId);
         Result<List<SlotResponse>> result = await new GetByIdScheduleSlotsQueryHandler(_slotRepository).Handle(query, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
@@ -139,12 +136,12 @@ public sealed class ScheduleUnitTests
     public async Task PutSchedule_ShouldReturnSuccess()
     {
         var command = new PutScheduleCommand(
-            TestScheduleId,
+            SeedScheduleAndSlots.TestScheduleId,
             new TimeOnly(8, 0),
             new TimeOnly(18, 0)
             );
 
-        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -158,7 +155,7 @@ public sealed class ScheduleUnitTests
             new TimeOnly(18, 0)
         );
 
-        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = TestUserId }).Handle(command, CancellationToken.None);
+        Result<string> result = await new PutScheduleCommandHandler(_scheduleRepository, _slotRepository, new TestUserContext { UserId = SeedUser.TestUserId }).Handle(command, CancellationToken.None);
 
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe(ScheduleErrors.NotFoundSchedule.Code);
@@ -168,7 +165,7 @@ public sealed class ScheduleUnitTests
     public async Task PutSchedule_ShouldReturnError_Unauthorized()
     {
         var command = new PutScheduleCommand(
-            TestScheduleId,
+            SeedScheduleAndSlots.TestScheduleId,
             new TimeOnly(8, 0),
             new TimeOnly(18, 0)
         );

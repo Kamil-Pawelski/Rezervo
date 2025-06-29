@@ -9,6 +9,8 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Shouldly;
+using Tests.Data;
+using Tests.Seeder;
 
 namespace Tests.Users;
 
@@ -38,8 +40,8 @@ public sealed class UserUnitTests
         _roleRepository = new RoleRepository(_context);
         _userRoleRepository = new UserRoleRepository(_context);
 
-        SeedData.SeedRoleData(_context);
-        SeedData.SeedUserTestData(_context, _passwordHasher);
+        SeedRole.Seed(_context);
+        SeedUser.Seed(_context, _passwordHasher);
     }
 
     [Fact]
@@ -50,8 +52,8 @@ public sealed class UserUnitTests
             "JohnDoe21",
             "John",
             "Doe",
-            SeedData.TestPassword,
-            SeedData.TestRoleId
+            SeedUser.TestPassword,
+            SeedRole.TestRoleId
         );
 
         Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
@@ -63,12 +65,12 @@ public sealed class UserUnitTests
     public async Task RegisterTest_ShouldReturnError_TheSameEmail()
     {
         var command = new RegisterUserCommand(
-            SeedData.TestUserEmail,
+            SeedUser.TestUserEmail,
             "New username test",
-            SeedData.TestFirstName,           
-            SeedData.TestLastName,
-            SeedData.TestPassword,
-            SeedData.TestRoleId
+            SeedUser.TestFirstName,
+            SeedUser.TestLastName,
+            SeedUser.TestPassword,
+            SeedRole.TestRoleId
         );       
 
         Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
@@ -82,11 +84,11 @@ public sealed class UserUnitTests
     {
         var command = new RegisterUserCommand(
             "newemail@test.com",
-            SeedData.TestUsername,
-            SeedData.TestFirstName,
-            SeedData.TestLastName,
-            SeedData.TestPassword,
-            SeedData.TestRoleId
+            SeedUser.TestUsername,
+            SeedUser.TestFirstName,
+            SeedUser.TestLastName,
+            SeedUser.TestPassword,
+            SeedRole.TestRoleId
         );
 
         Result result = await new RegisterUserCommandHandler(_passwordHasher, _userRepository, _roleRepository, _userRoleRepository).Handle(command, CancellationToken.None);
@@ -99,8 +101,8 @@ public sealed class UserUnitTests
     public async Task LoginTest_ShouldReturnOk()
     {
         var command = new LoginUserCommand(
-            SeedData.TestUsername,
-            SeedData.TestPassword
+            SeedUser.TestUsername,
+            SeedUser.TestPassword
         );
 
         Result result = await new LoginUserCommandHandler(_passwordHasher, _tokenProvider, _userRepository, _userRoleRepository).Handle(command, CancellationToken.None);
@@ -113,7 +115,7 @@ public sealed class UserUnitTests
     {
         var command = new LoginUserCommand(
             "EndpointTestWrong",
-            SeedData.TestPassword
+            SeedUser.TestPassword
         );
 
         Result result = await new LoginUserCommandHandler(_passwordHasher, _tokenProvider, _userRepository, _userRoleRepository).Handle(command, CancellationToken.None);
@@ -126,7 +128,7 @@ public sealed class UserUnitTests
     public async Task LoginTest_ShouldReturnUnauthorized_WrongPassword()
     {
         var command = new LoginUserCommand(
-            SeedData.TestUsername,
+            SeedUser.TestUsername,
             "Wrong123!"
         );
 
