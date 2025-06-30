@@ -27,8 +27,8 @@ public class IntegrationTestWebAppFactory: WebApplicationFactory<Program>, IAsyn
             {
                 services.Remove(descriptor);
             }
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(_container.GetConnectionString()));
+            var connectionString = _container.GetConnectionString() + ";Database=MyTestDatabase;";
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
         });
 
     public Task InitializeAsync() => _container.StartAsync();

@@ -16,7 +16,7 @@ using Tests.Seeder;
 namespace Tests.Schedules;
 
 [Collection("Factory")]
-public sealed class ScheduleEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public sealed class ScheduleIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
 
     private async Task<string> GenerateSpecialistToken()

@@ -12,7 +12,7 @@ using Tests.Seeder;
 namespace Tests.Bookings;
 
 [Collection("Factory")]
-public sealed class BookingEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public sealed class BookingIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
     private async Task<string> GenerateUserToken()
     {

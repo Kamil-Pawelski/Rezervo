@@ -33,6 +33,6 @@ internal sealed class SpecialistConfiguration : IEntityTypeConfiguration<Special
         builder.HasOne(specialist => specialist.User)
          .WithOne(user => user.Specialist)
          .HasForeignKey<Specialist>(specialist => specialist.UserId)
-         .OnDelete(DeleteBehavior.Restrict);
+         .OnDelete(DeleteBehavior.Cascade);
     }
 }

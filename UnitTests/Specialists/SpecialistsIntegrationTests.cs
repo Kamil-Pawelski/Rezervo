@@ -9,12 +9,11 @@ using Application.Users.Login;
 using Shouldly;
 using Tests.IntegrationTestsConfiguration;
 using Tests.Response;
-using Tests.Seeder;
 
 namespace Tests.Specialists;
 
 [Collection("Factory")]
-public sealed partial class SpecialistsEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public sealed class SpecialistsIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
     private async Task<string> GenerateSpecialistToken()
     {

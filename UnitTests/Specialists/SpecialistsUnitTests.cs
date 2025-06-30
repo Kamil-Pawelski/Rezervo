@@ -14,7 +14,6 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Tests.Data;
-using Tests.Seeder;
 
 namespace Tests.Specialists;
 

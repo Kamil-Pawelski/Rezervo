@@ -30,6 +30,6 @@ internal sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.HasOne(booking => booking.Slot)
             .WithOne(slot => slot.UserBooking)
             .HasForeignKey<Booking>(booking => booking.SlotId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

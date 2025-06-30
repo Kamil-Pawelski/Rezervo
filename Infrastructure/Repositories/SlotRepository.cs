@@ -23,7 +23,9 @@ public sealed class SlotRepository(ApplicationDbContext context) : ISlotReposito
         await context.SaveChangesAsync(cancellationToken);
     }
     public async Task<List<Slot>> GetAllAsync(CancellationToken cancellationToken) => await context.Slots.ToListAsync(cancellationToken);
-    public async Task<Slot?> GetByIdAsync(Guid id, CancellationToken cancellationToken) => await context.Slots.Where(slot => slot.Id == id).FirstOrDefaultAsync(cancellationToken);
+    public async Task<Slot?> GetByIdAsync(Guid id, CancellationToken cancellationToken) => await context.Slots.Where(slot => slot.Id == id)
+        .Include(slot => slot.Schedule.Specialist)
+        .FirstOrDefaultAsync(cancellationToken);
     public async Task<List<Slot>> GetScheduleSlotsAsync(Guid scheduleId, CancellationToken cancellationToken) => await context.Slots.Where(slot => slot.ScheduleId == scheduleId).ToListAsync(cancellationToken);
 
     public Task UpdateAsync(Slot slot, CancellationToken cancellationToken)

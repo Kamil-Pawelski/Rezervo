@@ -7,14 +7,12 @@ using Application.Slots.Put;
 using Application.Users.Login;
 using Shouldly;
 using Tests.IntegrationTestsConfiguration;
-using Tests.Seeder;
-using Web.Api;
 
 namespace Tests.Slots;
 
 
 [Collection("Factory")]
-public sealed class SlotEndpointsTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public sealed class SlotIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
     private async Task<string> GenerateSpecialistToken()
     {
@@ -54,6 +52,7 @@ public sealed class SlotEndpointsTests(IntegrationTestWebAppFactory factory) : B
     {
 
         var request = new HttpRequestMessage(HttpMethod.Delete, $"slots/{SeedScheduleAndSlots.TestSlotToDeleteId}");
+
         string token = await GenerateSpecialistToken();
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 

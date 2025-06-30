@@ -8,7 +8,7 @@ using Tests.IntegrationTestsConfiguration;
 namespace Tests.Users;
 
 [Collection("Factory")]
-public sealed class UserEndpointTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public sealed class UserIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
 
     [Fact]

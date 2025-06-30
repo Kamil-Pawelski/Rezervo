@@ -10,7 +10,6 @@ public static class SeedData
     private readonly static IPasswordHasher _passwordHasher = new PasswordHasher();
     public static async Task Initialize(ApplicationDbContext dbContext)
     {
-        SeedRole.Seed(dbContext);
         SeedUser.Seed(dbContext, _passwordHasher);
         SeedSpecialist.Seed(dbContext);
         SeedScheduleAndSlots.Seed(dbContext);
